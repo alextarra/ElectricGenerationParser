@@ -138,7 +138,7 @@ ElectricGenerationParser/
 ## 7. Architecture Validation
 
 ### 7.1 Coherence Check
-*   **Tech Stack:** .NET 8 + CsvHelper + Spectre.Console + Microsoft.Extensions.* is a standard, robust, modern .NET CLI stack.
+*   **Tech Stack:** .NET 8 + CsvHelper + Microsoft.Extensions.* is a standard, robust, modern .NET CLI stack.
 *   **Logic Pattern:** Strategy Pattern (Rate Logic) + Holiday Service (Data) separates concerns effectively for testing.
 *   **Configuration:** `IOptions<T>` + `appsettings.json` is the standard .NET approach.
 
@@ -146,7 +146,7 @@ ElectricGenerationParser/
 *   **Ingestion (FR-01 to FR-04):** Covered by `CsvHelper` and strict ClassMaps.
 *   **Logic (FR-05 to FR-08):** Covered by `IRateStrategy` and `HolidayService`.
 *   **Calculations (FR-09 to FR-11):** Covered by `ReportGenerator` aggregations and `ValidatorService` checksums.
-*   **Output (FR-12 to FR-15):** Covered by `Spectre.Console` table rendering.
+*   **Output (FR-12 to FR-15):** Covered by standard `Console.WriteLine` table rendering.
 *   **NFR Coverage:**
     *   **Performance:** High-performance CSV parsing and O(1) holiday lookups.
     *   **Maintainability:** Clean Architecture with DI.

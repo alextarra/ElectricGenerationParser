@@ -48,7 +48,7 @@ This document provides the complete epic and story breakdown for ElectricGenerat
 *   **AR-01 Date Strategy**: Use Strategy Pattern (Weekday/Weekend/Holiday) for rate calculation.
 *   **AR-02 Config Pattern**: Use IOptions<T> for strong typing; no direct IConfiguration injection.
 *   **AR-03 Logging**: Use Microsoft.Extensions.Logging (ILogger).
-*   **AR-04 Output**: Use Spectre.Console for table rendering.
+*   **AR-04 Output**: Use standard Console.WriteLine for table rendering.
 *   **AR-05 Validation**: Fail fast on invalid config or CSV headers.
 *   **AR-06 CSV**: Strict CSV mapping required.
 *   **AR-07 Holidays**: HolidayService must support fixed dates, relative dates (Nth day of month), and observation rules.
@@ -163,14 +163,14 @@ This document provides the complete epic and story breakdown for ElectricGenerat
 *   **Given** the sums, **When** `Total OnPeak + Total OffPeak != Total Input`, **Then** a `ValidationException` is thrown.
 *   **Given** valid data, **Then** a `ReportModel` is returned containing all summaries.
 
-### Story 3.2: Console Output with Spectre.Console
+### Story 3.2: Console Output
 
 **As a** User,
 **I want** a clean, readable table,
 **So that** I can easily key the numbers into my spreadsheet.
 
 **Acceptance Criteria:**
-*   **Given** a `ReportModel`, **Then** `Spectre.Console` renders a Table with columns for Metric, On-Peak, Off-Peak, and Total.
+*   **Given** a `ReportModel`, **Then** the application writes a text-based table with columns for Metric, On-Peak, Off-Peak, and Total.
 *   **Given** the table is rendered, **Then** numeric values are formatted (e.g., N0 or N2).
 *   **Given** the table is rendered, **Then** no debug logs pollute the output (standard out).
 
