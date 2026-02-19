@@ -35,6 +35,8 @@ This document provides the complete epic and story breakdown for ElectricGenerat
 *   **FR-15**: Output shall include Grand Totals.
 *   **FR-16**: The system shall load settings from appsettings.json.
 *   **FR-17**: PeakHours config shall support start/end hours per day of week.
+*   **FR-18**: Output shall include aggregated totals for Weekends.
+*   **FR-19**: Output shall include individual breakdowns for each Holiday.
 
 ### NonFunctional Requirements
 
@@ -155,20 +157,24 @@ This document provides the complete epic and story breakdown for ElectricGenerat
 ### Story 3.1: Data Aggregation & Checksum Validation
 
 **As a** User,
-**I want** to trust the data,
-**So that** I don't look foolish when I use these numbers.
+**I want** to trust the data and see granular details,
+**So that** I don't look foolish when I use these numbers and can verify holiday credits.
 
 **Acceptance Criteria:**
 *   **Given** a list of categorized records, **When** processed, **Then** `ReportGenerator` sums up OnPeak and OffPeak totals for all 4 metrics (Prod, Cons, Imp, Exp).
+*   **Given** the list of categorized records, **Then** `ReportGenerator` calculates aggregated totals for all Weekend days.
+*   **Given** the list of categorized records, **Then** `ReportGenerator` calculates individual totals for EACH specific holiday encountered (e.g., "Christmas", "New Year").
 *   **Given** the sums, **When** `Total OnPeak + Total OffPeak != Total Input`, **Then** a `ValidationException` is thrown.
 *   **Given** valid data, **Then** a `ReportModel` is returned containing all summaries.
 
 ### Story 3.2: Console Output
-
-**As a** User,
-**I want** a clean, readable table,
+ with detailed breakdowns,
 **So that** I can easily key the numbers into my spreadsheet.
 
+**Acceptance Criteria:**
+*   **Given** a `ReportModel`, **Then** the application writes a text-based table with columns for Metric, On-Peak, Off-Peak, and Total.
+*   **Given** the report model, **Then** a separate section displays "Weekend Totals" for all metrics.
+*   **Given** the report model, **Then** a separate section list each Holiday by name with its specific metrics
 **Acceptance Criteria:**
 *   **Given** a `ReportModel`, **Then** the application writes a text-based table with columns for Metric, On-Peak, Off-Peak, and Total.
 *   **Given** the table is rendered, **Then** numeric values are formatted (e.g., N0 or N2).
