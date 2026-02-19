@@ -6,13 +6,13 @@
 
 development_status:
   epic-1: in-progress
-  1-1-create-project-structure-domain-models: review
-  1-2-implement-holiday-configuration-service: ready-for-dev
-  1-3-implement-time-of-use-strategy-pattern: ready-for-dev
+  1-1-create-project-structure-domain-models: done
+  1-2-implement-holiday-configuration-service: done
+  1-3-implement-time-of-use-strategy-pattern: done
   epic-1-retrospective: optional
 
-  epic-2: backlog
-  2-1-implement-cli-arguments-configuration-loading: ready-for-dev
+  epic-2: in-progress
+  2-1-implement-cli-arguments-configuration-loading: review
   2-2-csv-ingestion-with-csvhelper: ready-for-dev
   epic-2-retrospective: optional
 
