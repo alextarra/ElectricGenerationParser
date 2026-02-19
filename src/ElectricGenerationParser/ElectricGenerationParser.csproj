@@ -21,4 +21,8 @@
     </None>
   </ItemGroup>
 
+  <Target Name="RenameAppSettingsOnPublish" AfterTargets="Publish">
+    <Move SourceFiles="$(PublishDir)appsettings.json" DestinationFiles="$(PublishDir)$(AssemblyName).json" Condition="Exists('$(PublishDir)appsettings.json')" />
+  </Target>
+
 </Project>

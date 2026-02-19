@@ -19,8 +19,23 @@ try
     var builder = Host.CreateApplicationBuilder(args);
     builder.Configuration.SetBasePath(AppContext.BaseDirectory);
 
-    // Configuration
-    builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+    // Customize configuration loading:
+    // In dev, appsettings.json is loaded by default.
+    // In published build, appsettings.json is renamed to [AssemblyName].json.
+    // We attempt to load [AssemblyName].json if it exists.
+    string assemblyName = System.Reflection.Assembly.GetEntryAssembly()?.GetName().Name ?? "appsettings";
+    string uniqueConfigName = $"{assemblyName}.json";
+    
+    // Add the specific config file if found.
+    // This handles the published scenario where appsettings.json is renamed.
+    if (File.Exists(Path.Combine(AppContext.BaseDirectory, uniqueConfigName)))
+    {
+        builder.Configuration.AddJsonFile(uniqueConfigName, optional: false, reloadOnChange: true);
+    }
+    // Note: Host.CreateApplicationBuilder automatically attempts to load appsettings.json.
+    // So in Dev environment, it will load appsettings.json naturally.
+
+
 
     builder.Services.Configure<HolidaySettings>(
         builder.Configuration.GetSection("Holiday"));
