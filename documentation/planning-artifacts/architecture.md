@@ -67,7 +67,7 @@ This requires a robust, testable, and configurable **Date/Time Evaluation Strate
 *   **Fail Fast:**
     *   Invalid Config -> Throw `ConfigurationException` on statup.
     *   Invalid CSV Header -> Throw `HeaderValidationException` immediately.
-    *   Malformed Data Row -> Log warning to `stderr`, skip row, continue processing (don't crash the whole batch for one bad line unless critical).
+    *   Malformed Data Row -> Throw parsing exception with row number and stop processing to preserve data integrity.
 *   **Global Handler:** `Program.cs` wraps execution in a `try/catch` block to print user-friendly error messages to `stderr` and exit with code 1.
 
 ### 5.2 Configuration Pattern

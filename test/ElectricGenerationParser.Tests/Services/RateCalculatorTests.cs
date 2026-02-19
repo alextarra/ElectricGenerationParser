@@ -34,7 +34,7 @@ public class RateCalculatorTests
     }
 
     [Fact]
-    public void CalculateRate_ShouldDefaultToOffPeak_WhenNoStrategyMatches()
+    public void CalculateRate_ShouldThrow_WhenNoStrategyMatches()
     {
         // Arrange
         var strategies = new List<IRateStrategy>
@@ -44,11 +44,8 @@ public class RateCalculatorTests
         };
         var calculator = new RateCalculator(strategies);
 
-        // Act
-        var result = calculator.CalculateRate(DateTime.Now);
-
-        // Assert
-        Assert.Equal(RateType.OffPeak, result);
+        // Act + Assert
+        Assert.Throws<InvalidOperationException>(() => calculator.CalculateRate(DateTime.Now));
     }
 
     [Fact]

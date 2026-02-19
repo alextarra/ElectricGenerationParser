@@ -15,12 +15,6 @@ try
     }
 
     string filePath = args[0];
-    if (!File.Exists(filePath))
-    {
-        Console.Error.WriteLine($"Error: File not found: {filePath}");
-        Console.WriteLine("Usage: ElectricGenerationParser <path-to-csv>");
-        return;
-    }
 
     var builder = Host.CreateApplicationBuilder(args);
     builder.Configuration.SetBasePath(AppContext.BaseDirectory);

@@ -125,4 +125,21 @@ public class HolidayServiceTests
         Assert.Contains(new DateOnly(2026, 9, 7), result);  // Labor
         Assert.Contains(new DateOnly(2026, 11, 26), result); // Thanksgiving
     }
+
+    [Fact]
+    public void GetHolidays_ShouldThrowInvalidOperationException_WhenFloatingHolidayConfigIsInvalid()
+    {
+        var settings = new HolidaySettings
+        {
+            FloatingHolidays = new List<FloatingHoliday>
+            {
+                new() { Name = "Invalid Holiday", Month = 13, DayOfWeek = DayOfWeek.Monday, WeekInstance = 1 }
+            }
+        };
+
+        var service = new HolidayService(Options.Create(settings));
+
+        var exception = Assert.Throws<InvalidOperationException>(() => service.GetHolidays(2026).ToList());
+        Assert.Contains("Invalid floating holiday configuration", exception.Message);
+    }
 }

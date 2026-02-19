@@ -26,11 +26,8 @@ public class RateCalculator : IRateCalculator
                 return rate.Value;
             }
         }
-        
-        // Default to OffPeak if no strategy matches (safe fallback), or throw?
-        // Requirement says "Weekday outside Peak Hours = OffPeak".
-        // WeekdayStrategy should handle the "rest".
-        // Let's assume strategies are exhaustive. If not, OffPeak is a safer default for consumers than OnPeak.
-        return RateType.OffPeak;
+
+        throw new InvalidOperationException(
+            $"No rate strategy resolved rate for timestamp '{timestamp:O}'. Verify strategy registration and configuration.");
     }
 }

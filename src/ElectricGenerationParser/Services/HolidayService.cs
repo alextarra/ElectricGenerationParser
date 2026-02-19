@@ -1,12 +1,13 @@
 using ElectricGenerationParser.Models;
 using Microsoft.Extensions.Options;
+using System.Collections.Concurrent;
 
 namespace ElectricGenerationParser.Services;
 
 public class HolidayService : IHolidayService
 {
     private readonly HolidaySettings _settings;
-    private readonly Dictionary<int, HashSet<DateOnly>> _holidaysCache = new();
+    private readonly ConcurrentDictionary<int, HashSet<DateOnly>> _holidaysCache = new();
 
     public HolidayService(IOptions<HolidaySettings> options)
     {
@@ -15,11 +16,11 @@ public class HolidayService : IHolidayService
 
     public IEnumerable<DateOnly> GetHolidays(int year)
     {
-        if (_holidaysCache.TryGetValue(year, out var cached))
-        {
-            return cached;
-        }
+        return _holidaysCache.GetOrAdd(year, BuildHolidays);
+    }
 
+    private HashSet<DateOnly> BuildHolidays(int year)
+    {
         var holidays = new HashSet<DateOnly>();
 
         foreach (var fixedHoliday in _settings.FixedHolidays)
@@ -63,7 +64,6 @@ public class HolidayService : IHolidayService
             }
         }
 
-        _holidaysCache[year] = holidays;
         return holidays;
     }
 
@@ -100,9 +100,11 @@ public class HolidayService : IHolidayService
                 }
             }
         }
-        catch 
+        catch (ArgumentOutOfRangeException ex)
         {
-            // Ignore invalid configs
+            throw new InvalidOperationException(
+                $"Invalid floating holiday configuration for '{config.Name}' in month {config.Month} with week instance {config.WeekInstance}.",
+                ex);
         }
         return null;
     }
