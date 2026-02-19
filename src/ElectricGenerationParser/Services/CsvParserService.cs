@@ -45,12 +45,20 @@ public class CsvParserService : ICsvParserService
         }
         catch (CsvHelper.TypeConversion.TypeConverterException ex)
         {
-            throw new InvalidDataException($"Data Format Error at Row {ex.Context.Parser.Row}: {ex.Message}", ex);
+            throw new InvalidDataException($"Data Format Error at Row {GetRowNumber(ex)}: {ex.Message}", ex);
         }
         // Catch other CsvHelper exceptions generally
         catch (CsvHelperException ex)
         {
-             throw new InvalidDataException($"CSV Parsing Error at Row {ex.Context.Parser.Row}: {ex.Message}", ex);
+             throw new InvalidDataException($"CSV Parsing Error at Row {GetRowNumber(ex)}: {ex.Message}", ex);
         }
+    }
+
+    private static string GetRowNumber(CsvHelperException ex)
+    {
+        var row = ex.Context?.Parser?.Row;
+        return row.HasValue
+            ? row.Value.ToString(CultureInfo.InvariantCulture)
+            : "Unknown";
     }
 }
