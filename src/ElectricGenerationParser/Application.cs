@@ -35,28 +35,19 @@ public class Application : IApplication
 
         if (!File.Exists(inputFilePath))
         {
-            _logger.LogError("File not found: {FilePath}", inputFilePath);
-            Environment.Exit(1);
-            return;
+            // Throw exception to be handled by global handler for consistent experience
+            throw new FileNotFoundException("Input file not found.", inputFilePath);
         }
         
-        try
-        {
-            // Story 2.2: Parse CSV
-            _logger.LogInformation("Parsing CSV file...");
-            var records = _csvParserService.Parse(inputFilePath);
-            _logger.LogInformation("Successfully parsed {Count} records.", records.Count);
-            
-            // Story 3.1 & 3.2: Generate and Render Report
-            _logger.LogInformation("Generating Report...");
-            var report = _reportGenerator.GenerateReport(records);
-            
-            _consoleService.RenderReport(report);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogCritical(ex, "Failed to parse CSV file.");
-            Environment.Exit(1);
-        }
+        // Story 2.2: Parse CSV
+        _logger.LogInformation("Parsing CSV file...");
+        var records = _csvParserService.Parse(inputFilePath);
+        _logger.LogInformation("Successfully parsed {Count} records.", records.Count);
+        
+        // Story 3.1 & 3.2: Generate and Render Report
+        _logger.LogInformation("Generating Report...");
+        var report = _reportGenerator.GenerateReport(records);
+        
+        _consoleService.RenderReport(report);
     }
 }

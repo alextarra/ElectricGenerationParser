@@ -33,7 +33,7 @@ public class CsvParserService : ICsvParserService
         using var reader = new StreamReader(filePath);
         using var csv = new CsvReader(reader, config);
 
-        csv.Context.RegisterClassMap<GenerationRecordMap>();
+        csv.Context.RegisterClassMap(new GenerationRecordMap());
 
         try
         {
