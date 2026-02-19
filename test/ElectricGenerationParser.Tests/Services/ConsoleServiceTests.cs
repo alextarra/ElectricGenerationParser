@@ -46,14 +46,14 @@ public class ConsoleServiceTests : IDisposable
         Assert.Contains("Total", output);
 
         // Data Rows
-        Assert.Contains("Produced", output);
-        Assert.Contains("Consumed", output);
-        Assert.Contains("Export", output);
-        Assert.Contains("Import", output);
+        Assert.Contains("Produced (Wh)", output);
+        Assert.Contains("Consumed (Wh)", output);
+        Assert.Contains("Export (Wh)", output);
+        Assert.Contains("Import (Wh)", output);
         
         // Values (formatted) - simplistic check ensuring values exist
-        Assert.Contains("100.00", output);
-        Assert.Contains("60.00", output);
-        Assert.Contains("40.00", output);
+        Assert.Contains("100", output);
+        Assert.Contains("60", output);
+        Assert.Contains("40", output);
     }
 }

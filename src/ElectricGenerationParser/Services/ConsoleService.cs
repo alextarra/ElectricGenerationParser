@@ -4,8 +4,8 @@ namespace ElectricGenerationParser.Services;
 
 public class ConsoleService : IConsoleService
 {
-    private const string Format = "N2";
-    private const int MetricWidth = 20;
+    private const string Format = "N0";
+    private const int MetricWidth = 30;
     private const int ValueWidth = 15;
 
     public void RenderReport(ReportModel model)
@@ -15,10 +15,10 @@ public class ConsoleService : IConsoleService
         Console.WriteLine(new string('-', MetricWidth + (ValueWidth * 3) + 3));
 
         // Rows
-        PrintRow("Produced", model.TotalOnPeak.Produced, model.TotalOffPeak.Produced, model.GrandTotal.Produced);
-        PrintRow("Consumed", model.TotalOnPeak.Consumed, model.TotalOffPeak.Consumed, model.GrandTotal.Consumed);
-        PrintRow("Export", model.TotalOnPeak.Export, model.TotalOffPeak.Export, model.GrandTotal.Export);
-        PrintRow("Import", model.TotalOnPeak.Import, model.TotalOffPeak.Import, model.GrandTotal.Import);
+        PrintRow("Produced (Wh)", model.TotalOnPeak.Produced, model.TotalOffPeak.Produced, model.GrandTotal.Produced);
+        PrintRow("Consumed (Wh)", model.TotalOnPeak.Consumed, model.TotalOffPeak.Consumed, model.GrandTotal.Consumed);
+        PrintRow("Exported to Grid (Wh)", model.TotalOnPeak.Export, model.TotalOffPeak.Export, model.GrandTotal.Export);
+        PrintRow("Imported from Grid (Wh)", model.TotalOnPeak.Import, model.TotalOffPeak.Import, model.GrandTotal.Import);
     }
 
     private void PrintRow(string metric, decimal onPeak, decimal offPeak, decimal total)

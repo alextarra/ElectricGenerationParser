@@ -25,9 +25,9 @@ public class CsvParserServiceTests : IDisposable
     {
         // Arrange
         var csvContent = 
-@"Date,Time,Energy Produced (Wh),Energy Consumed (Wh)
-01/01/2026,00:15,100.5,50.2
-01/01/2026,00:30,200,60";
+@"Date/Time,Energy Produced (Wh),Energy Consumed (Wh),Exported to Grid (Wh),Imported from Grid (Wh)
+01/01/2026 00:15,100.5,50.2,10,5.5
+01/01/2026 00:30,200,60,20,10";
         File.WriteAllText(_tempFile, csvContent);
         var parser = new CsvParserService();
 
@@ -39,16 +39,18 @@ public class CsvParserServiceTests : IDisposable
         Assert.Equal(new DateTime(2026, 1, 1, 0, 15, 0), result[0].Timestamp);
         Assert.Equal(100.5m, result[0].Produced);
         Assert.Equal(50.2m, result[0].Consumed);
+        Assert.Equal(10m, result[0].Export);
+        Assert.Equal(5.5m, result[0].Import);
     }
 
     [Fact]
     public void Parse_ShouldThrowInvalidDataException_WhenHeaderIsMissing()
     {
         // Arrange
-        // Missing 'Energy Produced (Wh)'
+        // Missing 'Energy Produced (Wh)' and others
         var csvContent = 
-@"Date,Time,Energy Consumed (Wh)
-01/01/2026,00:15,50.2";
+@"Date/Time,Energy Consumed (Wh)
+01/01/2026 00:15,50.2";
         File.WriteAllText(_tempFile, csvContent);
         var parser = new CsvParserService();
 
@@ -71,11 +73,12 @@ public class CsvParserServiceTests : IDisposable
         // Arrange
         // Row 2 has text in decimal field
         var csvContent = 
-@"Date,Time,Energy Produced (Wh),Energy Consumed (Wh)
-01/01/2026,00:15,100,50
-01/01/2026,00:30,N/A,60";
+@"Date/Time,Energy Produced (Wh),Energy Consumed (Wh),Exported to Grid (Wh),Imported from Grid (Wh)
+01/01/2026 00:15,100,50,0,0
+01/01/2026 00:30,N/A,60,0,0";
         File.WriteAllText(_tempFile, csvContent);
         var parser = new CsvParserService();
+
 
         // Act & Assert
         try 
