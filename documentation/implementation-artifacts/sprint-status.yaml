@@ -1,0 +1,26 @@
+# generated: 2026-02-18
+# project: ElectricGenerationParser
+# project_key: NOKEY
+# tracking_system: file-system
+# story_location: documentation/implementation-artifacts
+
+development_status:
+  epic-1: in-progress
+  1-1-create-project-structure-domain-models: review
+  1-2-implement-holiday-configuration-service: ready-for-dev
+  1-3-implement-time-of-use-strategy-pattern: ready-for-dev
+  epic-1-retrospective: optional
+
+  epic-2: backlog
+  2-1-implement-cli-arguments-configuration-loading: ready-for-dev
+  2-2-csv-ingestion-with-csvhelper: ready-for-dev
+  epic-2-retrospective: optional
+
+  epic-3: backlog
+  3-1-data-aggregation-checksum-validation: ready-for-dev
+  3-2-console-output-with-spectre-console: ready-for-dev
+  epic-3-retrospective: optional
+
+  epic-4: backlog
+  4-1-global-error-handling-publishing: ready-for-dev
+  epic-4-retrospective: optional
