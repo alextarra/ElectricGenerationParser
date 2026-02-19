@@ -48,8 +48,8 @@ public class ConsoleServiceTests : IDisposable
         // Data Rows
         Assert.Contains("Produced (Wh)", output);
         Assert.Contains("Consumed (Wh)", output);
-        Assert.Contains("Export (Wh)", output);
-        Assert.Contains("Import (Wh)", output);
+        Assert.Contains("Exported to Grid (Wh)", output);
+        Assert.Contains("Imported from Grid (Wh)", output);
         
         // Values (formatted) - simplistic check ensuring values exist
         Assert.Contains("100", output);
