@@ -19,6 +19,36 @@ public class ConsoleService : IConsoleService
         PrintRow("Consumed (Wh)", model.TotalOnPeak.Consumed, model.TotalOffPeak.Consumed, model.GrandTotal.Consumed);
         PrintRow("Exported to Grid (Wh)", model.TotalOnPeak.Export, model.TotalOffPeak.Export, model.GrandTotal.Export);
         PrintRow("Imported from Grid (Wh)", model.TotalOnPeak.Import, model.TotalOffPeak.Import, model.GrandTotal.Import);
+
+        // Weekend Totals
+        Console.WriteLine();
+        Console.WriteLine("Weekend Totals");
+        Console.WriteLine(new string('-', 20)); // Underline
+        PrintSummary(model.WeekendTotal);
+
+        // Holiday Breakdowns
+        if (model.HolidaySummaries.Any())
+        {
+            Console.WriteLine();
+            Console.WriteLine("Holiday Breakdowns");
+            Console.WriteLine(new string('-', 20)); // Underline
+            foreach (var kvp in model.HolidaySummaries)
+            {
+                var date = kvp.Key;
+                var summary = kvp.Value;
+                Console.WriteLine($"{summary.Name} ({date:yyyy-MM-dd}):");
+                PrintSummary(summary, indent: "  ");
+                Console.WriteLine();
+            }
+        }
+    }
+    
+    private void PrintSummary(MetricSummary summary, string indent = "")
+    {
+        Console.WriteLine($"{indent}{PadText("Produced:", 20)} {summary.Produced:N0} Wh");
+        Console.WriteLine($"{indent}{PadText("Consumed:", 20)} {summary.Consumed:N0} Wh");
+        Console.WriteLine($"{indent}{PadText("Export:", 20)} {summary.Export:N0} Wh");
+        Console.WriteLine($"{indent}{PadText("Import:", 20)} {summary.Import:N0} Wh");
     }
 
     private void PrintRow(string metric, decimal onPeak, decimal offPeak, decimal total)

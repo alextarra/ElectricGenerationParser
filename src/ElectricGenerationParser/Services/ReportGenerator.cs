@@ -14,10 +14,12 @@ public interface IReportGenerator
 public class ReportGenerator : IReportGenerator
 {
     private readonly IRateCalculator _rateCalculator;
+    private readonly IHolidayService _holidayService;
 
-    public ReportGenerator(IRateCalculator rateCalculator)
+    public ReportGenerator(IRateCalculator rateCalculator, IHolidayService holidayService)
     {
         _rateCalculator = rateCalculator ?? throw new ArgumentNullException(nameof(rateCalculator));
+        _holidayService = holidayService ?? throw new ArgumentNullException(nameof(holidayService));
     }
 
     public ReportModel GenerateReport(List<GenerationRecord> records)
@@ -62,6 +64,24 @@ public class ReportGenerator : IReportGenerator
 
             // Add to Grand Total
             report.GrandTotal.Add(record.Produced, record.Consumed, export, import);
+
+            // Add to Weekend Total
+            if (record.Timestamp.DayOfWeek == DayOfWeek.Saturday || record.Timestamp.DayOfWeek == DayOfWeek.Sunday)
+            {
+                report.WeekendTotal.Add(record.Produced, record.Consumed, export, import);
+            }
+
+            // Add to Holiday Summary
+            var date = DateOnly.FromDateTime(record.Timestamp);
+            var holidayName = _holidayService.GetHolidayName(date);
+            if (!string.IsNullOrEmpty(holidayName))
+            {
+                if (!report.HolidaySummaries.ContainsKey(date))
+                {
+                    report.HolidaySummaries[date] = new HolidayMetricSummary { Name = holidayName };
+                }
+                report.HolidaySummaries[date].Add(record.Produced, record.Consumed, export, import);
+            }
         }
 
         ValidateChecksums(report);

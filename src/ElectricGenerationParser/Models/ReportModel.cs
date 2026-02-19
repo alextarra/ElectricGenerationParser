@@ -7,6 +7,13 @@ public class ReportModel
     // Grand Totals across all rates
     public MetricSummary GrandTotal { get; set; } = new();
 
+    // FR-18: Aggregated totals for Weekends
+    public MetricSummary WeekendTotal { get; set; } = new();
+
+    // FR-19: Individual breakdowns for each Holiday
+    // Using DateOnly as key to easily sort by date and distinguish same holiday across years
+    public SortedDictionary<DateOnly, HolidayMetricSummary> HolidaySummaries { get; set; } = new();
+
     // Convenience properties for AC compliance
     public MetricSummary TotalOnPeak => Summaries.TryGetValue(RateType.OnPeak, out var summary) ? summary : new MetricSummary();
     public MetricSummary TotalOffPeak => Summaries.TryGetValue(RateType.OffPeak, out var summary) ? summary : new MetricSummary();

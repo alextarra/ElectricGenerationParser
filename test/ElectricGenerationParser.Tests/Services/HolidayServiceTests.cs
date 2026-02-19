@@ -142,4 +142,42 @@ public class HolidayServiceTests
         var exception = Assert.Throws<InvalidOperationException>(() => service.GetHolidays(2026).ToList());
         Assert.Contains("Invalid floating holiday configuration", exception.Message);
     }
+
+    [Fact]
+    public void GetHolidayName_ShouldReturnCorrectName()
+    {
+        var settings = new HolidaySettings
+        {
+            FixedHolidays = new List<FixedHoliday> { new() { Name = "Christmas", Month = 12, Day = 25 } }
+        };
+        var service = new HolidayService(Options.Create(settings));
+
+        var name = service.GetHolidayName(new DateOnly(2026, 12, 25));
+        Assert.Equal("Christmas", name);
+    }
+
+    [Fact]
+    public void GetHolidayName_ShouldReturnObservedName()
+    {
+        // Dec 25, 2022 is a Sunday. If observed, it should be Mon Dec 26.
+        var settings = new HolidaySettings
+        {
+            FixedHolidays = new List<FixedHoliday> { new() { Name = "Christmas", Month = 12, Day = 25 } },
+            ObserveWeekendHolidays = true
+        };
+        var service = new HolidayService(Options.Create(settings));
+
+        var name = service.GetHolidayName(new DateOnly(2022, 12, 26)); 
+        Assert.Equal("Christmas (Observed)", name);
+    }
+
+    [Fact]
+    public void GetHolidayName_ShouldReturnNull_ForNonHoliday()
+    {
+        var settings = new HolidaySettings();
+        var service = new HolidayService(Options.Create(settings));
+
+        var name = service.GetHolidayName(new DateOnly(2026, 1, 1));
+        Assert.Null(name);
+    }
 }

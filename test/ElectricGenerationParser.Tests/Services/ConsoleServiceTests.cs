@@ -56,4 +56,30 @@ public class ConsoleServiceTests : IDisposable
         Assert.Contains("60", output);
         Assert.Contains("40", output);
     }
+
+    [Fact]
+    public void RenderReport_ShouldDisplayHolidayWithDate()
+    {
+        // Arrange
+        var model = new ReportModel();
+        // Setup RateType summaries so validation doesn't crash (though RenderReport doesn't validate)
+        model.Summaries[RateType.OnPeak] = new MetricSummary();
+        model.Summaries[RateType.OffPeak] = new MetricSummary();
+        
+        var date = new DateOnly(2026, 12, 25);
+        model.HolidaySummaries[date] = new HolidayMetricSummary 
+        { 
+            Name = "Christmas", 
+            Produced = 500 
+        };
+
+        // Act
+        _service.RenderReport(model);
+
+        // Assert
+        var output = _stringWriter.ToString();
+        Assert.Contains("Christmas (2026-12-25):", output);
+        Assert.Contains("Produced:", output);
+        Assert.Contains("500 Wh", output);
+    }
 }

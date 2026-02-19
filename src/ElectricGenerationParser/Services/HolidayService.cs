@@ -7,7 +7,7 @@ namespace ElectricGenerationParser.Services;
 public class HolidayService : IHolidayService
 {
     private readonly HolidaySettings _settings;
-    private readonly ConcurrentDictionary<int, HashSet<DateOnly>> _holidaysCache = new();
+    private readonly ConcurrentDictionary<int, Dictionary<DateOnly, string>> _holidaysCache = new();
 
     public HolidayService(IOptions<HolidaySettings> options)
     {
@@ -16,22 +16,34 @@ public class HolidayService : IHolidayService
 
     public IEnumerable<DateOnly> GetHolidays(int year)
     {
-        return _holidaysCache.GetOrAdd(year, BuildHolidays);
+        return _holidaysCache.GetOrAdd(year, BuildHolidays).Keys;
+    }
+    
+    public bool IsHoliday(DateOnly date)
+    {
+        return _holidaysCache.GetOrAdd(date.Year, BuildHolidays).ContainsKey(date);
     }
 
-    private HashSet<DateOnly> BuildHolidays(int year)
+    public string? GetHolidayName(DateOnly date)
     {
-        var holidays = new HashSet<DateOnly>();
+        var holidays = _holidaysCache.GetOrAdd(date.Year, BuildHolidays);
+        return holidays.TryGetValue(date, out var name) ? name : null;
+    }
+
+    private Dictionary<DateOnly, string> BuildHolidays(int year)
+    {
+        var holidays = new Dictionary<DateOnly, string>();
 
         foreach (var fixedHoliday in _settings.FixedHolidays)
         {
             try
             {
-                holidays.Add(new DateOnly(year, fixedHoliday.Month, fixedHoliday.Day));
+                var date = new DateOnly(year, fixedHoliday.Month, fixedHoliday.Day);
+                holidays.TryAdd(date, fixedHoliday.Name);
             }
             catch (ArgumentOutOfRangeException)
             {
-                // Date doesn't exist in this year (e.g. Feb 29 non-leap)
+                // Date doesn't exist in this year
             }
         }
 
@@ -40,27 +52,40 @@ public class HolidayService : IHolidayService
             var date = CalculateFloatingHoliday(year, floating);
             if (date.HasValue)
             {
-                holidays.Add(date.Value);
+                holidays.TryAdd(date.Value, floating.Name);
             }
         }
 
         if (_settings.ObserveWeekendHolidays)
         {
-            var observed = new List<DateOnly>();
-            foreach (var h in holidays)
+            var observedUpdates = new Dictionary<DateOnly, string>();
+            foreach (var kvp in holidays)
             {
-                if (h.DayOfWeek == DayOfWeek.Saturday)
+                var date = kvp.Key;
+                var name = kvp.Value;
+                
+                if (date.DayOfWeek == DayOfWeek.Saturday)
                 {
-                    observed.Add(h.AddDays(-1));
+                    var observedDate = date.AddDays(-1);
+                    // Avoid overwriting if another holiday exists there, though rare
+                    if (!holidays.ContainsKey(observedDate))
+                    {
+                        observedUpdates.TryAdd(observedDate, $"{name} (Observed)");
+                    }
                 }
-                else if (h.DayOfWeek == DayOfWeek.Sunday)
+                else if (date.DayOfWeek == DayOfWeek.Sunday)
                 {
-                    observed.Add(h.AddDays(1));
+                    var observedDate = date.AddDays(1);
+                    if (!holidays.ContainsKey(observedDate))
+                    {
+                        observedUpdates.TryAdd(observedDate, $"{name} (Observed)");
+                    }
                 }
             }
-            foreach (var o in observed)
+            
+            foreach (var kvp in observedUpdates)
             {
-                holidays.Add(o);
+                holidays.TryAdd(kvp.Key, kvp.Value);
             }
         }
 
@@ -108,9 +133,5 @@ public class HolidayService : IHolidayService
         }
         return null;
     }
-
-    public bool IsHoliday(DateOnly date)
-    {
-        return GetHolidays(date.Year).Contains(date);
-    }
 }
+

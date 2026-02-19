@@ -9,6 +9,7 @@ public class HolidayStrategyTests
     {
         public IEnumerable<DateOnly> GetHolidays(int year) => new List<DateOnly>();
         public bool IsHoliday(DateOnly date) => date.Day == 1 && date.Month == 1; // New Year is Holiday
+        public string? GetHolidayName(DateOnly date) => IsHoliday(date) ? "New Year's Day" : null;
     }
 
     [Fact]

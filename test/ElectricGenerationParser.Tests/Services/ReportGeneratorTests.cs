@@ -20,7 +20,7 @@ public class ReportGeneratorTests
         var calculatorMock = new Mock<IRateCalculator>();
         calculatorMock.Setup(x => x.CalculateRate(It.IsAny<DateTime>())).Returns(RateType.OnPeak);
         
-        var generator = new ReportGenerator(calculatorMock.Object);
+        var generator = new ReportGenerator(calculatorMock.Object, Mock.Of<IHolidayService>());
         var records = new List<GenerationRecord>
         {
             new() { Timestamp = DateTime.Now, Produced = 100, Consumed = 50 }, // Expert=50, Import=0
@@ -53,7 +53,7 @@ public class ReportGeneratorTests
             .Returns(RateType.OnPeak)
             .Returns(RateType.OffPeak);
             
-        var generator = new ReportGenerator(calculatorMock.Object);
+        var generator = new ReportGenerator(calculatorMock.Object, Mock.Of<IHolidayService>());
         var records = new List<GenerationRecord>
         {
             new() { Produced = 100, Consumed = 0 }, // OnPeak, Export=100
@@ -77,7 +77,7 @@ public class ReportGeneratorTests
         var calculatorMock = new Mock<IRateCalculator>();
         calculatorMock.Setup(x => x.CalculateRate(It.IsAny<DateTime>())).Returns(RateType.OnPeak);
         
-        var generator = new ReportGenerator(calculatorMock.Object);
+        var generator = new ReportGenerator(calculatorMock.Object, Mock.Of<IHolidayService>());
         var originalProduced = 100m;
         var originalConsumed = 50m;
         var record = new GenerationRecord 
@@ -109,7 +109,7 @@ public class ReportGeneratorTests
     {
         // Now testing the internal validation logic directly
         var calculatorMock = new Mock<IRateCalculator>();
-        var generator = new ReportGenerator(calculatorMock.Object);
+        var generator = new ReportGenerator(calculatorMock.Object, Mock.Of<IHolidayService>());
 
         // Construct an invalid report manually
         var invalidReport = new ReportModel();
@@ -119,5 +119,31 @@ public class ReportGeneratorTests
 
         // Act & Assert
         Assert.Throws<ElectricGenerationParser.Exceptions.ValidationException>(() => generator.ValidateChecksums(invalidReport));
+    }
+
+    [Fact]
+    public void GenerateReport_ShouldAggregateHolidays()
+    {
+        // Arrange
+        var calculatorMock = new Mock<IRateCalculator>();
+        calculatorMock.Setup(x => x.CalculateRate(It.IsAny<DateTime>())).Returns(RateType.OffPeak);
+
+        var holidayServiceMock = new Mock<IHolidayService>();
+        var holidayDate = new DateOnly(2026, 12, 25);
+        holidayServiceMock.Setup(x => x.GetHolidayName(holidayDate)).Returns("Christmas");
+
+        var generator = new ReportGenerator(calculatorMock.Object, holidayServiceMock.Object);
+        var records = new List<GenerationRecord>
+        {
+            new() { Timestamp = holidayDate.ToDateTime(new TimeOnly(12, 0)), Produced = 100 }
+        };
+
+        // Act
+        var report = generator.GenerateReport(records);
+
+        // Assert
+        Assert.True(report.HolidaySummaries.ContainsKey(holidayDate));
+        Assert.Equal("Christmas", report.HolidaySummaries[holidayDate].Name);
+        Assert.Equal(100, report.HolidaySummaries[holidayDate].Produced);
     }
 }
