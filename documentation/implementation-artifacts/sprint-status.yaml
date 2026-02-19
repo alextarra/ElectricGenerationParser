@@ -12,11 +12,11 @@ development_status:
   epic-1-retrospective: optional
 
   epic-2: in-progress
-  2-1-implement-cli-arguments-configuration-loading: review
-  2-2-csv-ingestion-with-csvhelper: ready-for-dev
+  2-1-implement-cli-arguments-configuration-loading: done
+  2-2-csv-ingestion-with-csvhelper: review
   epic-2-retrospective: optional
 
-  epic-3: backlog
+  epic-3: in-progress
   3-1-data-aggregation-checksum-validation: ready-for-dev
   3-2-console-output-with-spectre-console: ready-for-dev
   epic-3-retrospective: optional

@@ -32,6 +32,7 @@ builder.Services.Configure<PeakHoursSettings>(
 
 // Services
 builder.Services.AddSingleton<IHolidayService, HolidayService>();
+builder.Services.AddTransient<ICsvParserService, CsvParserService>();
 
 // Register Strategies in Specific Order for RateCalculator
 // 1. Holiday (Precedence over all)
