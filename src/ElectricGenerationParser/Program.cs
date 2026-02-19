@@ -43,6 +43,8 @@ builder.Services.AddSingleton<IRateStrategy, WeekendStrategy>();
 builder.Services.AddSingleton<IRateStrategy, WeekdayStrategy>();
 
 builder.Services.AddSingleton<IRateCalculator, RateCalculator>();
+builder.Services.AddTransient<IReportGenerator, ReportGenerator>();
+builder.Services.AddTransient<IConsoleService, ConsoleService>();
 builder.Services.AddSingleton<Application>();
 
 using IHost host = builder.Build();

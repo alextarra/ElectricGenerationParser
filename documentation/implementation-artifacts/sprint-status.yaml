@@ -18,7 +18,7 @@ development_status:
 
   epic-3: in-progress
   3-1-data-aggregation-checksum-validation: done
-  3-2-console-output-with-spectre-console: ready-for-dev
+  3-2-console-output-with-spectre-console: done
   epic-3-retrospective: optional
 
   epic-4: backlog
