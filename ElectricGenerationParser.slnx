@@ -1,3 +1,8 @@
 <Solution>
-  <Project Path="ElectricCsvReader/ElectricCsvReader.csproj" />
+  <Folder Name="/src/">
+    <Project Path="src/ElectricGenerationParser/ElectricGenerationParser.csproj" />
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="test/ElectricGenerationParser.Tests/ElectricGenerationParser.Tests.csproj" />
+  </Folder>
 </Solution>
