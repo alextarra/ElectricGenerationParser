@@ -17,7 +17,7 @@ development_status:
   2-2-csv-ingestion-with-csvhelper: done
   3-0-end-to-end-cli-verification: done
   3-1-web-application-setup: done
-  3-2-web-report-processing: in-progress
+  3-2-web-report-processing: done
   epic-2-retrospective: optional
   epic-2-retrospective: optional
 
