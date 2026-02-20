@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/ElectricGenerationParser.Core/ElectricGenerationParser.Core.csproj" />
+    <Project Path="src/ElectricGenerationParser.Web/ElectricGenerationParser.Web.csproj" />
     <Project Path="src/ElectricGenerationParser/ElectricGenerationParser.csproj" />
   </Folder>
   <Folder Name="/test/">

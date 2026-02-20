@@ -1,6 +1,6 @@
 # Story 3.1: Web Application Setup & Upload Form
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -17,17 +17,17 @@ So that I can process my generation report without installing any software.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Create Web Project (AC: 2)
-  - [ ] `dotnet new webapp -o src/ElectricGenerationParser.Web`
-  - [ ] Add to solution.
-  - [ ] Add reference to `ElectricGenerationParser.Core`.
-- [ ] Task 2: Configure Startup (AC: 4)
-  - [ ] Update `Program.cs` to use `AddElectricGenerationCore`.
-  - [ ] Ensure `appsettings.json` has `Holiday` and `PeakHours` sections (copy from CLI/Core or use defaults).
-- [ ] Task 3: Implement Upload Form (AC: 1, 3)
-  - [ ] Update `Index.cshtml` to include `<form>` with `enctype="multipart/form-data"`.
-  - [ ] Add file input and submit button.
-  - [ ] Create `OnPostAsync` handler in `Index.cshtml.cs` to accept `IFormFile`.
+- [x] Task 1: Create Web Project (AC: 2)
+  - [x] `dotnet new webapp -o src/ElectricGenerationParser.Web`
+  - [x] Add to solution.
+  - [x] Add reference to `ElectricGenerationParser.Core`.
+- [x] Task 2: Configure Startup (AC: 4)
+  - [x] Update `Program.cs` to use `AddElectricGenerationCore`.
+  - [x] Ensure `appsettings.json` has `Holiday` and `PeakHours` sections (copy from CLI/Core or use defaults).
+- [x] Task 3: Implement Upload Form (AC: 1, 3)
+  - [x] Update `Index.cshtml` to include `<form>` with `enctype="multipart/form-data"`.
+  - [x] Add file input and submit button.
+  - [x] Create `OnPostAsync` handler in `Index.cshtml.cs` to accept `IFormFile`.
 
 ## Dev Notes
 - Use Razor Pages for simplicity (default `webapp` template).
