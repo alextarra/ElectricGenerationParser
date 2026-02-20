@@ -1,8 +1,10 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
-using ElectricGenerationParser.Models;
+using ElectricGenerationParser.Core.Models;
 using ElectricGenerationParser.Services;
+using ElectricGenerationParser.Core.Services;
+using ElectricGenerationParser.Core.Extensions;
 using ElectricGenerationParser;
 
 // Entry point
@@ -35,27 +37,10 @@ try
     // Note: Host.CreateApplicationBuilder automatically attempts to load appsettings.json.
     // So in Dev environment, it will load appsettings.json naturally.
 
+    // Register Core Services (Configuration, Models, Logic)
+    builder.Services.AddElectricGenerationCore(builder.Configuration);
 
-
-    builder.Services.Configure<HolidaySettings>(
-        builder.Configuration.GetSection("Holiday"));
-    builder.Services.Configure<PeakHoursSettings>(
-        builder.Configuration.GetSection("PeakHours"));
-
-    // Services
-    builder.Services.AddSingleton<IHolidayService, HolidayService>();
-    builder.Services.AddTransient<ICsvParserService, CsvParserService>();
-
-    // Register Strategies in Specific Order for RateCalculator
-    // 1. Holiday (Precedence over all)
-    builder.Services.AddSingleton<IRateStrategy, HolidayStrategy>();
-    // 2. Weekend (Precedence over Weekday)
-    builder.Services.AddSingleton<IRateStrategy, WeekendStrategy>();
-    // 3. Weekday (Lowest Precedence, default logic)
-    builder.Services.AddSingleton<IRateStrategy, WeekdayStrategy>();
-
-    builder.Services.AddSingleton<IRateCalculator, RateCalculator>();
-    builder.Services.AddTransient<IReportGenerator, ReportGenerator>();
+    // Register CLI-specific Services
     builder.Services.AddTransient<IConsoleService, ConsoleService>();
     builder.Services.AddSingleton<Application>();
 

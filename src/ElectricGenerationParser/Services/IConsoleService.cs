@@ -1,4 +1,4 @@
-using ElectricGenerationParser.Models;
+using ElectricGenerationParser.Core.Models;
 
 namespace ElectricGenerationParser.Services;
 

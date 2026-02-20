@@ -1,5 +1,5 @@
-using ElectricGenerationParser.Models;
-using ElectricGenerationParser.Services;
+using ElectricGenerationParser.Core.Models;
+using ElectricGenerationParser.Core.Services;
 
 namespace ElectricGenerationParser.Tests.Services;
 

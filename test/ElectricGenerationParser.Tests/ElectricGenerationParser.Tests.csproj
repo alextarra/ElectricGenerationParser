@@ -21,6 +21,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\ElectricGenerationParser\ElectricGenerationParser.csproj" />
+    <ProjectReference Include="..\..\src\ElectricGenerationParser.Core\ElectricGenerationParser.Core.csproj" />
+    <ProjectReference Include="..\..\src\ElectricGenerationParser.Web\ElectricGenerationParser.Web.csproj" />
   </ItemGroup>
 
 </Project>

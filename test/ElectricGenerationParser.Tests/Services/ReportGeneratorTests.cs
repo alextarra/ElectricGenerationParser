@@ -1,4 +1,5 @@
-using ElectricGenerationParser.Models;
+using ElectricGenerationParser.Core.Models;
+using ElectricGenerationParser.Core.Services;
 using ElectricGenerationParser.Services;
 using Moq;
 
@@ -118,7 +119,7 @@ public class ReportGeneratorTests
         invalidReport.GrandTotal = new MetricSummary { Produced = 20 };
 
         // Act & Assert
-        Assert.Throws<ElectricGenerationParser.Exceptions.ValidationException>(() => generator.ValidateChecksums(invalidReport));
+        Assert.Throws<ElectricGenerationParser.Core.Exceptions.ValidationException>(() => generator.ValidateChecksums(invalidReport));
     }
 
     [Fact]
