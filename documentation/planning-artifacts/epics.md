@@ -1,11 +1,11 @@
 ---
-stepsCompleted: [step-01-validate-prerequisites, step-02-design-epics, step-03-create-stories, step-04-final-validation]
+stepsCompleted: [1, 2, 3, 4]
 inputDocuments:
   - documentation/planning-artifacts/prd.md
   - documentation/planning-artifacts/architecture.md
-  - documentation/planning-artifacts/product-brief-ElectricGenerationParser-2026-02-18.md
-  - documentation/5919893_custom_report.csv
-project_name: ElectricGenerationParser
+project_name: 'ElectricGenerationParser'
+user_name: 'Sas'
+date: '2026-02-19'
 ---
 
 # ElectricGenerationParser - Epic Breakdown
@@ -18,180 +18,232 @@ This document provides the complete epic and story breakdown for ElectricGenerat
 
 ### Functional Requirements
 
-*   **FR-01**: The system shall accept a file path as a command-line argument.
-*   **FR-02**: The system shall validate that the input file exists and is accessible.
-*   **FR-03**: The system shall parse standard CSV files, skipping metadata headers.
-*   **FR-04**: The system shall map CSV columns to internal models by header name.
-*   **FR-05**: The system shall determine if a timestamp is Weekday vs Weekend.
-*   **FR-06**: The system shall identify configured Holidays.
-*   **FR-07**: The system shall apply Holiday Observation logic (e.g., weekend holiday rolls to weekday).
-*   **FR-08**: The system shall categorize every row as On-Peak or Off-Peak.
-*   **FR-09**: The system shall aggregate data into On-Peak and Off-Peak buckets.
-*   **FR-10**: The system shall perform a strict checksum validation (Input Sum == Output Sum).
-*   **FR-11**: The system shall halt with an error if validation fails.
-*   **FR-12**: The system shall output a formatted summary table to Console (stdout).
-*   **FR-13**: Output shall include On-Peak totals.
-*   **FR-14**: Output shall include Off-Peak totals.
-*   **FR-15**: Output shall include Grand Totals.
-*   **FR-16**: The system shall load settings from appsettings.json.
-*   **FR-17**: PeakHours config shall support start/end hours per day of week.
-*   **FR-18**: Output shall include aggregated totals for Weekends.
-*   **FR-19**: Output shall include individual breakdowns for each Holiday.
+*   **FR-01**: CLI - Accept file path argument.
+*   **FR-02**: CLI - Validate input file existence.
+*   **FR-03**: Ingestion - Parse standard CSV files (skip metadata).
+*   **FR-04**: Ingestion - Map columns to internal models.
+*   **FR-W1**: Web - Accessible via browser.
+*   **FR-W2**: Web - Upload CSV file via form.
+*   **FR-W3**: Web - Process file using Core Logic.
+*   **FR-W4**: Web - Render Summary HTML Table.
+*   **FR-W5**: Web - Display validation errors.
+*   **FR-05**: Logic - Weekday vs Weekend determination.
+*   **FR-06**: Logic - Holiday identification.
+*   **FR-07**: Logic - Holiday Observation logic.
+*   **FR-08**: Logic - On-Peak vs Off-Peak categorization.
+*   **FR-09**: Logic - Aggregate data into buckets.
+*   **FR-10**: Logic - Strict Checksum Validation.
+*   **FR-11**: Logic - Throw exceptions on validation failure.
+*   **FR-12**: CLI - Output summary table to Console.
+*   **FR-13**: Web - Output summary table to HTML.
+*   **FR-14**: Output - Include On-Peak totals.
+*   **FR-15**: Output - Include Off-Peak totals.
+*   **FR-16**: Output - Include Grand Totals.
+*   **FR-17**: Config - Load `appsettings.json` per app.
+*   **FR-18**: Config - Configurable Peak Hours.
 
 ### NonFunctional Requirements
 
-*   **NFR-01 Performance**: Process ~3000 rows in < 1 second.
-*   **NFR-02 Startup**: Cold start < 2 seconds.
-*   **NFR-03 Maintainability**: Clean C# conventions for solo maintenance.
-*   **NFR-04 Portability**: Windows x64 compatible, no local DB required.
+*   **NFR-01**: Performance - Process 3000 rows < 1 sec.
+*   **NFR-02**: Startup - Cold start < 2 sec.
+*   **NFR-03**: Maintainability - Clean C# conventions.
+*   **NFR-04**: Portability - Windows/Linux compatible (Path.Combine).
 
 ### Additional Requirements (from Architecture)
 
-*   **AR-01 Date Strategy**: Use Strategy Pattern (Weekday/Weekend/Holiday) for rate calculation.
-*   **AR-02 Config Pattern**: Use IOptions<T> for strong typing; no direct IConfiguration injection.
-*   **AR-03 Logging**: Use Microsoft.Extensions.Logging (ILogger).
-*   **AR-04 Output**: Use standard Console.WriteLine for table rendering.
-*   **AR-05 Validation**: Fail fast on invalid config or CSV headers.
-*   **AR-06 CSV**: Strict CSV mapping required.
-*   **AR-07 Holidays**: HolidayService must support fixed dates, relative dates (Nth day of month), and observation rules.
+*   **AR-01**: Structure - Multi-project solution (Core, Cli, Web).
+*   **AR-02**: Pattern - Strategy Pattern for Rate Logic.
+*   **AR-03**: Pattern - Shared `AddElectricGenerationCore` DI extension.
+*   **AR-04**: Config - Strict Options Validation.
+*   **AR-05**: Web - In-Memory processing (no disk storage).
+*   **AR-06**: output - Use `Spectre.Console` for CLI.
 
 ### FR Coverage Map
 
-| Requirement | Epic | Story |
-| :--- | :--- | :--- |
-| FR-01 (Path Arg) | Epic 2 | Story 2.1 |
-| FR-02 (File Check) | Epic 2 | Story 2.1 |
-| FR-03 (CSV Parse) | Epic 2 | Story 2.2 |
-| FR-04 (Map Cols) | Epic 2 | Story 2.2 |
-| FR-05 (Weekday) | Epic 1 | Story 1.3 |
-| FR-06 (Holidays) | Epic 1 | Story 1.2 |
-| FR-07 (Observations) | Epic 1 | Story 1.2 |
-| FR-08 (Categorize) | Epic 1 | Story 1.3 |
-| FR-09 (Aggregate) | Epic 3 | Story 3.1 |
-| FR-10 (Checksum) | Epic 3 | Story 3.1 |
-| FR-11 (Halt Fail) | Epic 3 | Story 3.1 |
-| FR-12 (Output) | Epic 3 | Story 3.2 |
-| FR-13 (On-Peak) | Epic 3 | Story 3.2 |
-| FR-14 (Off-Peak) | Epic 3 | Story 3.2 |
-| FR-15 (Totals) | Epic 3 | Story 3.2 |
-| FR-16 (Config) | Epic 2 | Story 2.1 |
-| FR-17 (Peak Hours) | Epic 1 | Story 1.3 |
-| NFR-01 (Perf) | All | All |
-| NFR-03 (Clean Code) | All | Story 1.1 |
-| NFR-04 (Portability) | Epic 4 | Story 4.1 |
+| Epic | Included Requirements |
+| :--- | :--- |
+| **Epic 1: The Core Brain** | FR-03, FR-04, FR-05, FR-06, FR-07, FR-08, FR-09, FR-10, FR-11, FR-17, FR-18, AR-01, AR-02, AR-03, AR-04, NFR-03 |
+| **Epic 2: The CLI Experience** | FR-01, FR-02, FR-12, FR-14, FR-15, FR-16, AR-06, NFR-04 |
+| **Epic 3: The Web Interface** | FR-W1, FR-W2, FR-W3, FR-W4, FR-W5, FR-13, AR-05, NFR-01, NFR-02 |
 
-## Epic 1: Core Logic Engine
+## Epic List
 
-**Goal:** Implement the verified business logic for Time-of-Use rates (Weekdays, Weekends, Holidays) without any UI or File I/O dependencies. This forms the "Start" of our Clean Architecture.
+1.  **Epic 1: The Core Brain (Shared Logic Library)**
+2.  **Epic 2: The CLI Experience (Console App)**
+3.  **Epic 3: The Web Interface (Zero-Install Access)**
 
 ### Story 1.1: Create Project Structure & Domain Models
 
 **As a** Developer,
-**I want** to initialize the solution and core data models,
-**So that** I have a type-safe representation of the CSV data and Rate rules.
+**I want** to initialize the Multi-Project Solution with the Shared Core Library and Domain Models,
+**So that** I have a type-safe foundation for implementing the business logic.
 
 **Acceptance Criteria:**
-*   **Given** a new repository, **When** I initialize the solution, **Then** `ElectricGenerationParser.sln` exists with `src` and `test` projects.
-*   **Given** the CSV schema, **Then** a `GenerationRecord` model exists with properties for Date/Time, Produced, Consumed, Export, Import.
-*   **Given** the need for Rate logic, **Then** a `RateType` enum exists (OnPeak, OffPeak).
-*   **Given** the need for Configuration, **Then** `HolidaySettings` and `PeakHoursSettings` POCOs exist.
 
-### Story 1.2: Implement Holiday Configuration Service
+*   **Given** a clean workspace, **When** I initialize the solution, **Then** `ElectricGenerationParser.sln` should exist with `ElectricGenerationParser.Core` (Class Library) and `ElectricGenerationParser.Tests` (xUnit).
+*   **Given** the CSV specification, **When** I create `GenerationRecord.cs`, **Then** it should have properties matching `Date/Time`, `Energy Produced`, `Energy Consumed`, `Exported`, `Imported` with correct data types (DateTime, int/double).
+*   **Given** the output requirements, **When** I create `RatePeriodSummary.cs`, **Then** it should hold aggregated totals for On-Peak, Off-Peak, and Grand Totals.
+*   **Given** the shared logic requirement, **When** I create `IServiceCollectionExtensions.cs`, **Then** it should contain a placeholder `AddElectricGenerationCore` method.
 
-**As a** User,
-**I want** to define holidays in `appsettings.json`,
-**So that** I don't need to recompile the code every year.
+### Story 1.2: Implement CSV Ingestion with CsvHelper
+
+**As a** Developer,
+**I want** to implement a robust CSV parser using CsvHelper,
+**So that** I can reliably ingest the provider's specific file format and handle parsing errors gracefully.
 
 **Acceptance Criteria:**
-*   **Given** `appsettings.json`, **When** I define a fixed holiday (e.g., Dec 25), **Then** `HolidayService` correctly identifies it.
-*   **Given** `appsettings.json`, **When** I define a floating holiday (e.g., "Last Monday of May"), **Then** `HolidayService` calculates the correct date for any given year.
-*   **Given** an "Observed" rule (Sat->Fri, Sun->Mon), **Then** `HolidayService` marks the observed date as a holiday.
-*   **Given** a year, **When** `GetHolidays(year)` is called, **Then** it returns a distinct list of `DateOnly` objects.
+
+*   **Given** a valid CSV file, **When** `CsvParserService.ParseStreamAsync(stream)` is called, **Then** it should return a `List<GenerationRecord>` with all rows populated.
+*   **Given** the CSV has metadata headers, **When** parsing, **Then** the service should correctly skip preamble lines to find the header row.
+*   **Given** a malformed CSV (missing columns), **When** parsing, **Then** it should throw a custom `CsvValidationException`.
+*   **Given** the `GenerationRecordMap`, **When** configured, **Then** it should use loose mapping for headers (case-insensitive) but strict validation for missing required columns.
 
 ### Story 1.3: Implement Time-of-Use Strategy Pattern
 
-**As a** User,
-**I want** the system to accurately classify every timestamp,
-**So that** I know if I was generating during peak or off-peak hours.
+**As a** Developer,
+**I want** to implement the `IRateStrategy` pattern for Weekday vs Weekend logic,
+**So that** I can easily extensible rules for determining On-Peak vs Off-Peak periods.
 
 **Acceptance Criteria:**
-*   **Given** a timestamp, **When** passed to `RateCalculator`, **Then** it returns the correct `RateType`.
-*   **Given** a Weekend (Sat/Sun), **Then** `WeekendStrategy` returns `OffPeak`.
-*   **Given** a Holiday (from Story 1.2), **Then** `HolidayStrategy` returns `OffPeak`.
-*   **Given** a Weekday within Peak Hours (e.g., 7am-7pm), **Then** `WeekdayStrategy` returns `OnPeak`.
-*   **Given** a Weekday outside Peak Hours, **Then** `WeekdayStrategy` returns `OffPeak`.
-*   **Unit Tests:** Must cover all permutations (Weekday Peak, Weekday OffPeak, Weekend, Holiday, Observed Holiday).
 
-## Epic 2: Input & Configuration
+*   **Given** a date is Saturday or Sunday, **When** `WeekendStrategy` is evaluated, **Then** it should always return `RateType.OffPeak`.
+*   **Given** a date is Monday-Friday, **When** `WeekdayStrategy` is evaluated, **Then** it should check the hour against configured `PeakStart` (e.g., 07:00) and `PeakEnd` (e.g., 19:00).
+*   **Given** `appsettings.json`, **When** `PeakHoursSettings` are loaded, **Then** the strategy should use those dynamic values, not hardcoded hours.
 
-**Goal:** Enable the application to startup, ingest data, and bridge the "Core Logic" to the "Real World".
+### Story 1.4: Implement Holiday Configuration Service
+
+**As a** User,
+**I want** to define holidays in `appsettings.json` (Fixed, Floating, Observed),
+**So that** the system correctly identifies holidays as Off-Peak without code changes.
+
+**Acceptance Criteria:**
+
+*   **Given** `appsettings.json` with Fixed Holidays (e.g., Dec 25), **When** `HolidayService` initializes, **Then** it should calculate the exact date for the current year.
+*   **Given** a Floating Holiday (e.g., Memorial Day = Last Monday in May), **When** initialized, **Then** it should calculate the correct date for the year.
+*   **Given** `ObserveWeekend: true`, **When** a holiday falls on Sunday, **Then** the following Monday should be added to the holiday list.
+*   **Given** `HolidayStrategy`, **When** a date matches a calculated holiday, **Then** it should return `RateType.OffPeak` regardless of the time of day.
+
+### Story 1.5: Data Aggregation & Checksum Validation
+
+**As a** User,
+**I want** the system to aggregate totals and strictly validate checksums,
+**So that** I can trust the financial data is 100% accurate and no energy is unaccounted for.
+
+**Acceptance Criteria:**
+
+*   **Given** a list of classified records, **When** `ReportGenerator` runs, **Then** it should produce a `RatePeriodSummary` with correct sums for On-Peak, Off-Peak, and Total.
+*   **Given** the aggregation is complete, **When** `ValidatorService` runs, **Then** it must verify: `Total Produced == Sum(OnPeak Produced + OffPeak Produced)`.
+*   **Given** a discrepancy (e.g., rounding error > 1 unit), **When** validating, **Then** it should throw a `ValidationException` stopping the process.
+
+
+**Goal:** Restore the original "Month End" workflow by building a robust Command Line Interface (CLI) that consumes the Core Library. It focuses on file system interactions, user feedback via Spectre.Console, and local configuration management.
 
 ### Story 2.1: Implement CLI Arguments & Configuration Loading
 
-**As a** User,
-**I want** to run the app with a file path argument,
-**So that** I can process different reports easily.
+**As a** Developer,
+**I want** to set up the CLI project to accept file path arguments and load local configuration,
+**So that** the application knows what file to process and which rules to apply.
 
 **Acceptance Criteria:**
-*   **Given** no arguments, **Then** the app prints a usage message and exits with code 1.
-*   **Given** a non-existent file path, **Then** the app prints an error and exits with code 1.
-*   **Given** a valid file path, **Then** the app converts it to an absolute path for processing.
-*   **Given** `appsettings.json`, **Then** it is loaded into `IOptions<T>` and validated.
 
-### Story 2.2: CSV Ingestion with CsvHelper
+*   **Given** the CLI application, **When** run with `--help`, **Then** it should display usage instructions.
+*   **Given** a valid file path argument, **When** the application starts, **Then** it should validate the file exists before proceeding.
+*   **Given** `appsettings.json` in the execution directory, **When** the app starts, **Then** it should successfully load `HolidaySettings` and `PeakHoursSettings` into the DI container using `AddElectricGenerationCore`.
+*   **Given** missing configuration, **When** the app starts, **Then** it should exit immediately with a clear configuration error.
+
+### Story 2.2: CSV Ingestion Integration
+
+**As a** User,
+**I want** the CLI to read the specified CSV file using the Core Parser,
+**So that** the raw data is loaded into memory for processing.
+
+**Acceptance Criteria:**
+
+*   **Given** a valid CSV file path, **When** the command executes, **Then** it should stream the file content to `ICsvParserService`.
+*   **Given** a large file, **When** parsing, **Then** it should show a spinner or progress indicator (via Spectre.Console).
+*   **Given** an invalid file (wrong format), **When** parsing, **Then** the CLI should catch the `CsvValidationException` and print the error message (e.g., "Missing column 'Energy Produced'").
+
+### Story 2.3: Data Aggregation & Checksum Validation
+
+**As a** User,
+**I want** the system to process the data and validate the results,
+**So that** I know the numbers remain accurate before seeing the report.
+
+**Acceptance Criteria:**
+
+*   **Given** parsed records, **When** passed to `IReportGenerator`, **Then** the CLI should receive a `RatePeriodSummary` object.
+*   **Given** a validation failure in the Core logic, **When** processing, **Then** the CLI should catch `ValidationException` and display "Data Integrity Error: Totals do not match."
+*   **Given** successful processing, **When** complete, **Then** it should proceed to the reporting step.
+
+### Story 2.4: Console Output with Spectre.Console
+
+**As a** User,
+**I want** to see a formatted table of the results in my terminal,
+**So that** I can easily read the On-Peak vs Off-Peak totals.
+
+**Acceptance Criteria:**
+
+*   **Given** a valid `RatePeriodSummary`, **When** the process completes, **Then** it should render a `Spectre.Console.Table` with columns: Period (On/Off), Energy Produced, Consumed, Import, Export.
+*   **Given** the table is rendered, **When** specific rows are totals, **Then** they should be highlighted or formatted distinctly.
+*   **Given** the Grand Total row, **When** rendered, **Then** it must match the sum of On+Off rows visually.
+
+## Epic 3: The Web Interface (Zero-Install Access)
+
+### Story 3.1: Web Application Setup & Upload Form
+
+**As a** User,
+**I want** to access the application via a web browser and see a file upload form,
+**So that** I can process my generation report without installing any software.
+
+**Acceptance Criteria:**
+
+*   **Given** a browser, **When** I navigate to the homepage, **Then** I should see a simple form with a file upload input (`.csv`) and a "Process Report" button.
+*   **Given** the Razor Pages project, **When** initialized, **Then** it should register `AddElectricGenerationCore` services just like the CLI.
+*   **Given** `appsettings.json`, **When** the web app starts, **Then** it should load `HolidaySettings` and `PeakHoursSettings` correctly.
+
+### Story 3.2: In-Memory File Processing
 
 **As a** Developer,
-**I want** to parse the CSV file using a robust library,
-**So that** I handle quoting, headers, and date formats correctly.
+**I want** to process the uploaded file directly from memory streams,
+**So that** I avoid the complexity and latency of saving temporary files to disk.
 
 **Acceptance Criteria:**
-*   **Given** a valid CSV, **When** parsed, **Then** it returns a `List<GenerationRecord>`.
-*   **Given** the specific header format ("Energy Produced (Wh)"), **Then** a `ClassMap` explicitly maps it to the model.
-*   **Given** a missing header, **Then** the parser throws a specific validation exception.
-*   **Given** a malformed row, **Then** the specific line number is reported in the error.
 
-## Epic 3: Reporting & Validation
+*   **Given** a valid file upload (`IFormFile`), **When** the form is submitted, **Then** the stream should be passed directly to `ICsvParserService`.
+*   **Given** a large file, **When** parsing, **Then** it should handle the stream efficiently within the request lifecycle.
+*   **Given** an invalid file type (e.g., .txt or .exe), **When** submitted, **Then** the controller should reject it before parsing.
 
-**Goal:** Aggregating the data, running checksums, and rendering the final output.
-
-### Story 3.1: Data Aggregation & Checksum Validation
+### Story 3.3: HTML Report Rendering
 
 **As a** User,
-**I want** to trust the data and see granular details,
-**So that** I don't look foolish when I use these numbers and can verify holiday credits.
+**I want** to see the calculation results as a formatted HTML table,
+**So that** I can copy the values directly into my spreadsheets.
 
 **Acceptance Criteria:**
-*   **Given** a list of categorized records, **When** processed, **Then** `ReportGenerator` sums up OnPeak and OffPeak totals for all 4 metrics (Prod, Cons, Imp, Exp).
-*   **Given** the list of categorized records, **Then** `ReportGenerator` calculates aggregated totals for all Weekend days.
-*   **Given** the list of categorized records, **Then** `ReportGenerator` calculates individual totals for EACH specific holiday encountered (e.g., "Christmas", "New Year").
-*   **Given** the sums, **When** `Total OnPeak + Total OffPeak != Total Input`, **Then** a `ValidationException` is thrown.
-*   **Given** valid data, **Then** a `ReportModel` is returned containing all summaries.
 
-### Story 3.2: Console Output
- with detailed breakdowns,
-**So that** I can easily key the numbers into my spreadsheet.
+*   **Given** successful processing, **When** the page reloads, **Then** it should display a `<table>` with the same columns as the CLI (Period, Produced, Consumed, Import, Export).
+*   **Given** the `RatePeriodSummary` model, **When** rendering with Razor, **Then** it should iterate over the On-Peak and Off-Peak totals and display Grand Totals at the bottom.
+*   **Given** the table is displayed, **When** reviewing, **Then** numeric values should be formatted for readability.
 
-**Acceptance Criteria:**
-*   **Given** a `ReportModel`, **Then** the application writes a text-based table with columns for Metric, On-Peak, Off-Peak, and Total.
-*   **Given** the report model, **Then** a separate section displays "Weekend Totals" for all metrics.
-*   **Given** the report model, **Then** a separate section list each Holiday by name with its specific metrics
-**Acceptance Criteria:**
-*   **Given** a `ReportModel`, **Then** the application writes a text-based table with columns for Metric, On-Peak, Off-Peak, and Total.
-*   **Given** the table is rendered, **Then** numeric values are formatted (e.g., N0 or N2).
-*   **Given** the table is rendered, **Then** no debug logs pollute the output (standard out).
-
-## Epic 4: Packaging & Polish
-
-**Goal:** Ensure the app is robust and easy to distribute.
-
-### Story 4.1: Global Error Handling & Publishing
+### Story 3.4: Web Error Handling
 
 **As a** User,
-**I want** friendly error messages,
-**So that** I know what went wrong without seeing a stack trace.
+**I want** friendly error messages if my file is invalid,
+**So that** I know what went wrong without seeing technical crash screens.
 
 **Acceptance Criteria:**
-*   **Given** an unhandled exception (e.g., File Locked), **Then** `Program.cs` catches it and prints a red error message to standard error.
-*   **Given** the need to ship, **Then** a publish profile creates a single `.exe` file (SCD, Win-x64, Trimmed if possible).
 
+*   **Given** a `CsvValidationException` (bad format), **When** caught in the PageModel, **Then** it should add a `ModelState` error and re-display the form with a clear message (e.g., "Invalid File Format").
+*   **Given** a `ValidationException` (checksum error), **When** caught, **Then** it should show "Data Integrity Error" prominently.
+*   **Given** any other unhandled exception, **When** caught, **Then** it should show a generic "Processing Failed" message and log the details internally.
 
+### Story 3.5: Docker Deployment Support
+
+**As a** DevOps Engineer,
+**I want** a `Dockerfile` for the Web Application,
+**So that** I can easily deploy the service to a containerized environment.
+
+**Acceptance Criteria:**
+
+*   **Given** the solution root, **When** `docker build` is run, **Then** it should produce a minimal ASP.NET Core image containing the published Web App.
+*   **Given** environment variables, **When** the container starts, **Then** it should respect overridden `PeakHoursSettings` or `HolidaySettings` configuration.

@@ -7,153 +7,169 @@ inputDocuments:
 workflowType: 'architecture'
 lastStep: 8
 status: 'complete'
-completedAt: '2026-02-18'
+completedAt: '2026-02-19'
 project_name: 'ElectricGenerationParser'
 user_name: 'Sas'
-date: '2026-02-18'
+date: '2026-02-19'
 ---
 
 # Architecture Decision Document
 
 _This document builds collaboratively through step-by-step discovery. Sections are appended as we work through each architectural decision together._
 
-## 1. Context Analysis & Data Structure
+## 1. Context Analysis & Project Scope
 
-### 1.1 Input Data Analysis
-**Source:** `5919893_custom_report.csv`
-**Format:** CSV
-**Key Columns Identified:**
-- `Date/Time`: Timestamp (e.g., `01/01/2026 00:00`)
-- `Energy Produced (Wh)`: Integer/Float
-- `Energy Consumed (Wh)`: Integer/Float
-- `Exported to Grid (Wh)`: Integer/Float
-- `Imported from Grid (Wh)`: Integer/Float
+### 1.1 Project Overview
+**ElectricGenerationParser** is a suite of two distinct applications (CLI & Web) designed to automate the complex financial accounting of electricity generation, consumption, and grid interaction.
 
 ### 1.2 Core Architectural Challenge
-The primary architectural complexity lies in the **Time-of-Use Logic Engine**. The system must accurately classify every row's timestamp into a specific rate bucket based on a hierarchy of rules:
-1.  **Holiday Logic:** Is the date a fixed holiday? Is it an *observed* holiday (e.g., Sunday holiday observed on Monday)?
-2.  **Weekend Logic:** Is it a Saturday or Sunday?
-3.  **Time-of-Day Logic:** Is the hour within the Peak window?
+The primary architectural complexity lies in the **Time-of-Use Logic Engine**. The system must accurately classify every row's timestamp into a specific rate bucket based on a hierarchy of rules. This logic must be **identical** across both the CLI and Web interfaces.
 
-This requires a robust, testable, and configurable **Date/Time Evaluation Strategy**.
+### 1.3 Scope of Work
+*   **Shared Core Library:** Encapsulating the "Logic Engine" (Parsing, Peak/Off-Peak Classification, Validation).
+*   **CLI Application:** Simple wrapper for the Core Library (file I/O).
+*   **Web Application:** New interface for the Core Library (HTTP Upload/Response).
 
-## 4. Core Implementation Decisions
+### 1.4 Complexity Assessment
+*   **Project Type:** Application Suite (CLI + Web)
+*   **Domain:** Energy Data Processing & Personal Finance
+*   **Complexity:** Low (Single-user, logic-heavy)
+*   **Data Volume:** ~750 rows per file (Monthly report).
+*   **Performance:** Sub-second processing required.
 
-### 4.1 Date/Time Logic Engine (The "Brain")
+## 2. Technology Selection & Starter Template
+
+### 2.1 Framework Decision
+*   **Platform:** .NET 8 (LTS)
+*   **Rationale:** Long-term support, stability, and broad compatibility. While .NET 9/10 are available, .NET 8 is the industry standard for stable deployments.
+
+### 2.2 Solution Structure (The "Starter")
+We will implement a custom multi-project solution structure rather than a monolithic template.
+*   **Core (Class Library):**
+    *   `ElectricGenerationParser.Core`
+    *   *Purpose:* Pure business logic, standard reference.
+    *   *Dependencies:* `CsvHelper`, `Microsoft.Extensions.Configuration`, `Microsoft.Extensions.DependencyInjection.Abstractions`.
+*   **CLI (Console):**
+    *   `ElectricGenerationParser.Cli`
+    *   *Purpose:* Command-line interface.
+    *   *Dependencies:* `Core`, `Spectre.Console`, `Microsoft.Extensions.Hosting`.
+*   **Web (ASP.NET Core):**
+    *   `ElectricGenerationParser.Web`
+    *   *Pattern:* **Razor Pages** (Server-side rendering).
+    *   *Rationale:* Simplest model for input-processing-output workflows. No client-side state management complexity required.
+    *   *Dependencies:* `Core`.
+
+### 2.3 Dependency Strategy
+*   **CsvHelper:** For robust CSV parsing (industry standard).
+*   **Spectre.Console:** For rich CLI output (tables, progress).
+*   **Microsoft.Extensions.Hosting/DI:** To standardize dependency injection across both Console and Web apps.
+*   **No Database:** State is transient (per request/run). Configuration is static (json).
+
+## 3. Core Architectural Decisions
+
+### 3.1 Date/Time Logic Engine (The "Brain")
 *   **Pattern:** **Strategy Pattern** via `IRateCalculator` interface.
     *   `WeekdayRateStrategy`: Checks if date is Mon-Fri AND outside holiday list. Applies time-based window.
     *   `WeekendRateStrategy`: Checks if date is Sat/Sun. Always returns Off-Peak.
     *   `HolidayRateStrategy`: Highest priority. Checks if date is in the calculated holiday list. Always returns Off-Peak.
 *   **Time Window:** Configurable start/end hour (e.g., `07:00` to `19:00`) for weekdays.
 
-### 4.2 Holiday Configuration Strategy
-*   **Requirement:** Holidays must be defined in `appsettings.json`, not hardcoded.
-*   **Schema Support:**
-    *   **Fixed Date:** `{ "Name": "Christmas", "Month": 12, "Day": 25 }`
-    *   **Floating Date:** `{ "Name": "Memorial Day", "Month": 5, "DayOfWeek": "Monday", "occurrence": -1 }` (Last Monday)
-    *   **Observed Rule:** `{ "Name": "New Year Observed", "Month": 1, "Day": 1, "ObserveWeekend": true }`
-*   **Implementation:** A `HolidayService` will parse these rules at startup and generate a `HashSet<DateOnly>` for O(1) lookups during processing.
+### 3.2 Web Upload Architecture
+*   **Processing Model:** **In-Memory Processing**.
+    *   *Mechanism:* Uploaded file stream is read directly into memory (`IFormFile.OpenReadStream()`).
+    *   *Rationale:* Files are small (~50KB) and transient. Storing on disk introduces unnecessary I/O latency, permission complexity, and cleanup overhead.
+    *   *State:* Stateless Request/Response cycle.
 
-### 4.3 CSV Mapping Strategy
-*   **Strict Mapping:** We will rely on `CsvHelper` and strict ClassMaps. If the provider changes the header format, the application should halt to avoid processing garbage data.
+### 3.3 Error Handling & Communication
+*   **Pattern:** **Typed Exceptions**.
+    *   *Core Library:* Throws specific exceptions (`CsvValidationException`, `ConfigurationException`) for logical failures.
+    *   *CLI Handling:* Catches exceptions -> Prints user-friendly localized error message to `stderr` -> Exits with non-zero code.
+    *   *Web Handling:* Catches exceptions -> Returns HTTP 400 Bad Request with the exception message in the response body or UI alert.
 
-### 4.4 Output Handling
-*   **Strategy:** Standard `Console.WriteLine`.
-*   **Rationale:** Simpler dependency footprint. The focus is on raw data output (potentially redirectable to a file via `> output.txt`), rather than rich UI.
+### 3.4 Shared Configuration Strategy
+*   **Schema:** Defined in `ElectricGenerationParser.Core.Configuration`.
+    *   `HolidaySettings`: List of fixed/floating definitions.
+    *   `PeakHoursSettings`: Daily start/end times.
+*   **Deployment:** Each app (`Cli` and `Web`) has its own `appsettings.json`, but they adhere to the exact same schema. This allows environment-specific overrides (e.g., Docker env vars for Web) while keeping logic identical.
 
-## 5. Implementation Patterns
+## 4. Implementation Patterns
 
-### 5.1 Error Handling Pattern
-*   **Fail Fast:**
-    *   Invalid Config -> Throw `ConfigurationException` on statup.
-    *   Invalid CSV Header -> Throw `HeaderValidationException` immediately.
-    *   Malformed Data Row -> Throw parsing exception with row number and stop processing to preserve data integrity.
-*   **Global Handler:** `Program.cs` wraps execution in a `try/catch` block to print user-friendly error messages to `stderr` and exit with code 1.
+### 4.1 Dependency Injection (DI) Pattern
+*   **Pattern:** **Shared Service Extension** via `AddElectricGenerationCore`.
+*   **Implementation:** The Core library will expose a single extension method `public static IServiceCollection AddElectricGenerationCore(this IServiceCollection services, IConfiguration config)`.
+*   **Benefit:** Ensures that `RateCalculator`, `CsvParser`, `HolidayService`, and strict `IOptions` binding are **identically configured** in both `Cli/Program.cs` and `Web/Program.cs`. Reduces risk of "it works in CLI but fails in Web".
 
-### 5.2 Configuration Pattern
-*   **Strong Typing:** strict usage of `IOptions<T>`.
-    *   Classes: `HolidaySettings`, `PeakHoursSettings`.
-    *   **No** direct `IConfiguration` injection into services.
+### 4.2 Configuration Pattern
+*   **Pattern:** **BIO (Bind, Validate, Options)**.
+*   **Rule:** Configuration classes (`HolidaySettings`) must use `[Required]` or `[Range]` data annotations.
+*   **Validation:** Service registration must use `.ValidateDataAnnotations().ValidateOnStart()` to prevent the application from even starting if `appsettings.json` is missing or malformed.
+*   **Strict Keys:** Section keys `"HolidaySettings"` and `"PeakHoursSettings"` are constant strings in the Core library.
 
-### 5.3 Logging vs Output
-*   **Separation of Concerns:**
-    *   **Logs (Diagnostics):** Use `ILogger` (Microsoft.Extensions.Logging). configured to write to `Debug` or a File, or `stderr` if verbose.
-    *   **Report (User Output):** Use `Console.WriteLine` strictly for the final data table. This ensures `STDOUT` is clean for piping.
+### 4.3 Logging Pattern
+*   **Pattern:** **ILogger Abstraction**.
+*   **Rule:** The Core library must **NEVER** use `Console.WriteLine`. It must exclusively use `ILogger<T>` for all diagnostic output.
+*   **Adaptation:**
+    *   **CLI:** Configures a Console Logger (writing to Stderr) during host startup.
+    *   **Web:** Uses default ASP.NET Core logging.
+*   **Separation:** This keeps specific "UI" output (the final table) separate from "Logic" logs (parsing warnings).
 
-### 5.4 File System Abstraction
-*   **Path Safety:** Use `System.IO.Path.Combine()` exclusively.
-*   **I/O Abstraction:** Services should take `Stream` or `TextReader` where possible (via `IFileSystem` wrapper or just passing streams) to allow easy unit testing without touching distinct disk files.
+### 4.4 File Path Handling
+*   **Pattern:** **Cross-Platform Path Safety**.
+*   **Rule:** Use `System.IO.Path.Combine()` exclusively. Never usage string concatenation for paths (`"folder\\" + file`).
+*   **Rationale:** Ensures the application runs correctly on both Windows (dev) and Linux (potential web host).
 
-## 6. Project Structure
+## 5. Project Structure
 
-### 6.1 Solution Overview
+### 5.1 Solution Layout
 **Solution:** `ElectricGenerationParser.sln`
 
-### 6.2 Component Mapping
-*   **Ingestion:** `Services/CsvParserService.cs`, `Models/GenerationRecord.cs`, `Models/GenerationRecordMap.cs`
-*   **Logic (Brain):** `Services/RateCalculator.cs`, `Strategies/WeekdayStrategy.cs`, `Strategies/WeekendStrategy.cs`, `Strategies/HolidayStrategy.cs`, `Services/HolidayService.cs`
-*   **Calc & Validate:** `Services/ReportGenerator.cs`, `Services/ValidatorService.cs`
-*   **Output:** `Services/ConsoleOutputService.cs`
-*   **config:** `Configuration/PeakHoursSettings.cs`, `Configuration/HolidaySettings.cs`
-
-### 6.3 Detailed File Tree
 ```text
-ElectricGenerationParser/
-├── ElectricGenerationParser/
-│   ├── ElectricGenerationParser.csproj
-│   ├── Program.cs                  <-- DI Setup, Entry Point, Global Error Handling
-│   ├── appsettings.json            <-- The Rules (Holidays, Peak Hours)
-│   ├── Configuration/              <-- Strongly Typed Settings
-│   │   ├── HolidaySettings.cs
-│   │   └── PeakHoursSettings.cs
-│   ├── Models/                     <-- Data Structures
-│   │   ├── GenerationRecord.cs     <-- CSV Row Model
-│   │   ├── GenerationRecordMap.cs  <-- CsvHelper Mapping Class
-│   │   └── RatePeriodSummary.cs    <-- Output DTO
-│   ├── Services/                   <-- Business Logic Interfaces & Implementations
-│   │   ├── Interfaces/
-│   │   │   ├── ICsvParser.cs
-│   │   │   ├── IHolidayService.cs
-│   │   │   ├── IRateCalculator.cs
-│   │   │   └── IReportGenerator.cs
-│   │   ├── CsvParserService.cs
-│   │   ├── HolidayService.cs       <-- Calculates dynamic holidays
-│   │   ├── RateCalculator.cs       <-- The Strategy Context
-│   │   └── ReportGenerator.cs      <-- Orchestrates the flow
-│   └── Strategies/                 <-- The "Brains" of the Rate Logic
-│       ├── IRateStrategy.cs
-│       ├── WeekdayStrategy.cs
-│       ├── WeekendStrategy.cs
-│       └── HolidayStrategy.cs
-└── ElectricGenerationParser.Tests/
-    ├── ElectricGenerationParser.Tests.csproj
-    ├── Services/                   <-- Unit Tests mirror structure
-    │   ├── CsvParserTests.cs
-    │   ├── HolidayServiceTests.cs
-    │   └── RateCalculatorTests.cs
-    └── Strategies/
-        └── StrategyTests.cs
+src/
+├── ElectricGenerationParser.Core/       <-- The Shared Brain (Class Library)
+│   ├── Configuration/                   <-- Settings Models (HolidaySettings.cs)
+│   ├── Exceptions/                      <-- Typed Exceptions
+│   ├── Interfaces/                      <-- Service Contracts
+│   ├── Models/                          <-- Data Models (GenerationRecord.cs)
+│   ├── Services/                        <-- Business Logic (RateCalculator.cs)
+│   ├── Strategies/                      <-- Rate Strategy Implementations
+│   └── ServiceCollectionExtensions.cs   <-- Shared DI Setup
+├── ElectricGenerationParser.Cli/        <-- The Console App
+│   ├── Services/                        <-- ConsoleOutputService.cs
+│   ├── Program.cs                       <-- Entry Point & Command Parsing
+│   └── appsettings.json                 <-- Local CLI Config
+└── ElectricGenerationParser.Web/        <-- The Web App (ASP.NET Core)
+    ├── Pages/                           <-- Razor Pages (Index.cshtml)
+    ├── Program.cs                       <-- Web Entry Point
+    └── appsettings.json                 <-- Web Config
+tests/
+└── ElectricGenerationParser.Tests/      <-- Unit Tests
+    ├── Core/                            <-- Tests for Logic
+    └── Integration/                     <-- End-to-End Tests
 ```
 
-## 7. Architecture Validation
+### 5.2 Component Mapping
+*   **Core Logic (FR-05 to FR-11):** Lives strictly in `ElectricGenerationParser.Core`.
+*   **CLI UX (FR-01 to FR-04):** Lives in `ElectricGenerationParser.Cli`.
+*   **Web UX (FR-W1 to FR-W5):** Lives in `ElectricGenerationParser.Web`.
+*   **Unit Tests:** Focus 90% of testing effort on `Core`. If Core is correct, both apps are likely correct.
 
-### 7.1 Coherence Check
-*   **Tech Stack:** .NET 8 + CsvHelper + Microsoft.Extensions.* is a standard, robust, modern .NET CLI stack.
-*   **Logic Pattern:** Strategy Pattern (Rate Logic) + Holiday Service (Data) separates concerns effectively for testing.
-*   **Configuration:** `IOptions<T>` + `appsettings.json` is the standard .NET approach.
+## 6. Architecture Validation
 
-### 7.2 Requirements Coverage
-*   **Ingestion (FR-01 to FR-04):** Covered by `CsvHelper` and strict ClassMaps.
-*   **Logic (FR-05 to FR-08):** Covered by `IRateStrategy` and `HolidayService`.
-*   **Calculations (FR-09 to FR-11):** Covered by `ReportGenerator` aggregations and `ValidatorService` checksums.
-*   **Output (FR-12 to FR-15):** Covered by standard `Console.WriteLine` table rendering.
-*   **NFR Coverage:**
-    *   **Performance:** High-performance CSV parsing and O(1) holiday lookups.
-    *   **Maintainability:** Clean Architecture with DI.
-    *   **Portability:** SCD Deployment.
+### 6.1 Coherence Check
+*   **Ecosystem:** .NET 8 + CsvHelper + Spectre.Console + Razor Pages forms a cohesive, modern .NET ecosystem.
+*   **Logic Isolation:** The "Shared Brain" approach (Core Library) perfectly addresses the critical risk of diverging logic between CLI and Web.
+*   **Configuration:** The "Shared DI Extension" pattern prevents "it works on my machine" issues by ensuring configuration binding code is identical across apps.
 
-### 7.3 Gap Analysis & Mitigation
-*   **Data Integrity:** The PRD requires strict checksum validation (`Input Sum == Output Sum`).
-*   **Mitigation:** `ValidatorService` must explicitly calculate `Sum(OnPeak + OffPeak)` for all metric columns (Produced, Consumed, Import, Export) and compare against `Sum(TotalInput)`. Any deviation halts the process.
+### 6.2 Requirements Coverage
+*   **Logic (FR-05 - FR-11):** Fully covered by `ElectricGenerationParser.Core`.
+*   **CLI (FR-01 - FR-04):** Fully covered by `ElectricGenerationParser.Cli`.
+*   **Web (FR-W1 - FR-W5):** Fully covered by `ElectricGenerationParser.Web`.
+*   **Shared Config (FR-17, FR-18):** Fully covered by `Core.Configuration` and `AddElectricGenerationCore`.
 
-
+### 6.3 Gap Analysis & Mitigation
+*   **Gap: Web UI Details:** The rendering strategy for the Web UI is high-level.
+    *   **Mitigation:** We will implement a standard HTML table in `Index.cshtml` that iterates over the `RatePeriodSummary` model, mirroring the Console output structure.
+*   **Gap: Docker Support:** No explicit requirement for containerization, but helpful for web deployment.
+    *   **Mitigation:** A `Dockerfile` will be added to the `ElectricGenerationParser.Web` project as a "Recommended" artifact for easy deployment, though not strictly required for local dev.
+*   **Gap: Testing Web UI:** The plan focuses heavily on Core testing.
+    *   **Mitigation:** Since the Web UI is a "Thin Client" (no logic in Razor pages), Core unit tests provide 90% confidence. Integration tests can be added later if UI complexity grows.
