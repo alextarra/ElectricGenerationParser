@@ -1,8 +1,8 @@
-using ElectricGenerationParser.Models;
+using ElectricGenerationParser.Core.Models;
 using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
 
-namespace ElectricGenerationParser.Services;
+namespace ElectricGenerationParser.Core.Services;
 
 public class HolidayService : IHolidayService
 {

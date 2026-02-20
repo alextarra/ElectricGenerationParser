@@ -1,4 +1,5 @@
-using ElectricGenerationParser.Models;
+using ElectricGenerationParser.Core.Models;
+using ElectricGenerationParser.Core.Services;
 using ElectricGenerationParser.Services;
 using System.Text;
 

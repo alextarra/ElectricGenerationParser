@@ -1,10 +1,10 @@
 using CsvHelper;
 using CsvHelper.Configuration;
 using CsvHelper.TypeConversion; // Added for TypeConversionException
-using ElectricGenerationParser.Models;
+using ElectricGenerationParser.Core.Models;
 using System.Globalization;
 
-namespace ElectricGenerationParser.Services;
+namespace ElectricGenerationParser.Core.Services;
 
 public interface ICsvParserService
 {

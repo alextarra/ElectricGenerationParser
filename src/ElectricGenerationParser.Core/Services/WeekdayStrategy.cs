@@ -1,7 +1,7 @@
-using ElectricGenerationParser.Models;
+using ElectricGenerationParser.Core.Models;
 using Microsoft.Extensions.Options;
 
-namespace ElectricGenerationParser.Services;
+namespace ElectricGenerationParser.Core.Services;
 
 public class WeekdayStrategy : IRateStrategy
 {

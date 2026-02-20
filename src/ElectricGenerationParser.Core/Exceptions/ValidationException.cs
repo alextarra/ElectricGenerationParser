@@ -1,4 +1,4 @@
-namespace ElectricGenerationParser.Exceptions;
+namespace ElectricGenerationParser.Core.Exceptions;
 
 public class ValidationException : Exception
 {

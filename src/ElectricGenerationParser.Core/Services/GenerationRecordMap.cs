@@ -1,8 +1,8 @@
 using CsvHelper.Configuration;
-using ElectricGenerationParser.Models;
+using ElectricGenerationParser.Core.Models;
 using System.Globalization;
 
-namespace ElectricGenerationParser.Services;
+namespace ElectricGenerationParser.Core.Services;
 
 public sealed class GenerationRecordMap : ClassMap<GenerationRecord>
 {

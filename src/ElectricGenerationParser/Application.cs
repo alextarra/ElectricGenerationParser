@@ -1,7 +1,8 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using ElectricGenerationParser.Models;
+using ElectricGenerationParser.Core.Models;
 using ElectricGenerationParser.Services;
+using ElectricGenerationParser.Core.Services;
 
 namespace ElectricGenerationParser;
 

@@ -1,4 +1,4 @@
-namespace ElectricGenerationParser.Models;
+namespace ElectricGenerationParser.Core.Models;
 
 public class HolidaySettings
 {

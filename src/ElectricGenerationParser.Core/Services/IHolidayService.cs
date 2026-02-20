@@ -1,4 +1,4 @@
-namespace ElectricGenerationParser.Services;
+namespace ElectricGenerationParser.Core.Services;
 
 public interface IHolidayService
 {

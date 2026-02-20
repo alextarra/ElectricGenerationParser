@@ -1,6 +1,6 @@
-using ElectricGenerationParser.Models;
+using ElectricGenerationParser.Core.Models;
 
-namespace ElectricGenerationParser.Services;
+namespace ElectricGenerationParser.Core.Services;
 
 public class HolidayStrategy : IRateStrategy
 {

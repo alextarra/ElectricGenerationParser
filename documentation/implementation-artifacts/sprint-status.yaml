@@ -9,6 +9,7 @@ development_status:
   1-1-create-project-structure-domain-models: done
   1-2-implement-holiday-configuration-service: done
   1-3-implement-time-of-use-strategy-pattern: done
+  1-4-refactor-to-core-library: done
   epic-1-retrospective: optional
 
   epic-2: in-progress

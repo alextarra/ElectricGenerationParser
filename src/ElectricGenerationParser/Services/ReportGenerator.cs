@@ -1,5 +1,6 @@
-using ElectricGenerationParser.Models;
+using ElectricGenerationParser.Core.Models;
 using ElectricGenerationParser.Services;
+using ElectricGenerationParser.Core.Services;
 
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("ElectricGenerationParser.Tests")]
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("DynamicProxyGenAssembly2")] // For Moq
@@ -102,7 +103,7 @@ public class ReportGenerator : IReportGenerator
 
         if (!summedTotal.Equals(report.GrandTotal))
         {
-            throw new ElectricGenerationParser.Exceptions.ValidationException("Data Integrity Error: Grand Total does not match sum of Rate Types.");
+            throw new ElectricGenerationParser.Core.Exceptions.ValidationException("Data Integrity Error: Grand Total does not match sum of Rate Types.");
         }
     }
 }
