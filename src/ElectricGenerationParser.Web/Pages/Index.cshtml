@@ -63,5 +63,73 @@
                 </tr>
             </tbody>
         </table>
+
+        @if (Model.Report.WeekendTotal != null)
+        {
+            <h3 class="mt-5 mb-3">Weekend Totals</h3>
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Metric</th>
+                        <th class="text-end">Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Produced</td>
+                        <td class="text-end">@Model.Report.WeekendTotal.Produced.ToString("N2")</td>
+                    </tr>
+                    <tr>
+                        <td>Consumed</td>
+                        <td class="text-end">@Model.Report.WeekendTotal.Consumed.ToString("N2")</td>
+                    </tr>
+                    <tr>
+                        <td>Export</td>
+                        <td class="text-end">@Model.Report.WeekendTotal.Export.ToString("N2")</td>
+                    </tr>
+                    <tr>
+                        <td>Import</td>
+                        <td class="text-end">@Model.Report.WeekendTotal.Import.ToString("N2")</td>
+                    </tr>
+                </tbody>
+            </table>
+        }
+
+        @if (Model.Report.HolidaySummaries != null && Model.Report.HolidaySummaries.Any())
+        {
+            <h3 class="mt-5 mb-3">Holiday Breakdowns</h3>
+            @foreach (var kvp in Model.Report.HolidaySummaries)
+            {
+                var date = kvp.Key;
+                var summary = kvp.Value;
+                <h4 class="mt-4">@summary.Name (@date.ToString("yyyy-MM-dd"))</h4>
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th class="text-end">Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Produced</td>
+                            <td class="text-end">@summary.Produced.ToString("N2")</td>
+                        </tr>
+                        <tr>
+                            <td>Consumed</td>
+                            <td class="text-end">@summary.Consumed.ToString("N2")</td>
+                        </tr>
+                        <tr>
+                            <td>Export</td>
+                            <td class="text-end">@summary.Export.ToString("N2")</td>
+                        </tr>
+                        <tr>
+                            <td>Import</td>
+                            <td class="text-end">@summary.Import.ToString("N2")</td>
+                        </tr>
+                    </tbody>
+                </table>
+            }
+        }
     </div>
 }
