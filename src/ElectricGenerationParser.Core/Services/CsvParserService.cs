@@ -9,6 +9,7 @@ namespace ElectricGenerationParser.Core.Services;
 public interface ICsvParserService
 {
     List<GenerationRecord> Parse(string filePath);
+    List<GenerationRecord> Parse(Stream stream);
 }
 
 public class CsvParserService : ICsvParserService
@@ -20,6 +21,12 @@ public class CsvParserService : ICsvParserService
             throw new FileNotFoundException("CSV file not found.", filePath);
         }
 
+        using var stream = File.OpenRead(filePath);
+        return Parse(stream);
+    }
+
+    public List<GenerationRecord> Parse(Stream stream)
+    {
         var config = new CsvConfiguration(CultureInfo.InvariantCulture)
         {
             HasHeaderRecord = true,
@@ -30,7 +37,7 @@ public class CsvParserService : ICsvParserService
         config.HeaderValidated = ConfigurationFunctions.HeaderValidated;
         config.MissingFieldFound = ConfigurationFunctions.MissingFieldFound;
 
-        using var reader = new StreamReader(filePath);
+        using var reader = new StreamReader(stream);
         using var csv = new CsvReader(reader, config);
 
         csv.Context.RegisterClassMap(new GenerationRecordMap());

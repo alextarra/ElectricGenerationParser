@@ -1,11 +1,9 @@
 using ElectricGenerationParser.Core.Models;
-using ElectricGenerationParser.Services;
-using ElectricGenerationParser.Core.Services;
 
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("ElectricGenerationParser.Tests")]
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("DynamicProxyGenAssembly2")] // For Moq
 
-namespace ElectricGenerationParser.Services;
+namespace ElectricGenerationParser.Core.Services;
 
 public interface IReportGenerator
 {

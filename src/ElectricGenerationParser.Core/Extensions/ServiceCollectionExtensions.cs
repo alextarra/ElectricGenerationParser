@@ -29,6 +29,9 @@ public static class ServiceCollectionExtensions
 
         // Register Calculator (consumes all IRateStrategy)
         services.AddSingleton<IRateCalculator, RateCalculator>();
+        
+        // Register Report Generator
+        services.AddSingleton<IReportGenerator, ReportGenerator>();
 
         return services;
     }

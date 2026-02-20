@@ -41,7 +41,6 @@ try
     builder.Services.AddElectricGenerationCore(builder.Configuration);
 
     // Register CLI-specific Services
-    builder.Services.AddTransient<IReportGenerator, ReportGenerator>();
     builder.Services.AddTransient<IConsoleService, ConsoleService>();
     builder.Services.AddSingleton<Application>();
 
