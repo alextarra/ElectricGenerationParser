@@ -42,24 +42,24 @@
             <tbody>
                 <tr>
                     <td>On-Peak</td>
-                    <td class="text-end">@Model.Report.TotalOnPeak.Produced.ToString("N2")</td>
-                    <td class="text-end">@Model.Report.TotalOnPeak.Consumed.ToString("N2")</td>
-                    <td class="text-end">@Model.Report.TotalOnPeak.Export.ToString("N2")</td>
-                    <td class="text-end">@Model.Report.TotalOnPeak.Import.ToString("N2")</td>
+                    <td class="text-end">@Model.Report.TotalOnPeak.Produced.ToString("N0")</td>
+                    <td class="text-end">@Model.Report.TotalOnPeak.Consumed.ToString("N0")</td>
+                    <td class="text-end">@Model.Report.TotalOnPeak.Export.ToString("N0")</td>
+                    <td class="text-end">@Model.Report.TotalOnPeak.Import.ToString("N0")</td>
                 </tr>
                 <tr>
                     <td>Off-Peak</td>
-                    <td class="text-end">@Model.Report.TotalOffPeak.Produced.ToString("N2")</td>
-                    <td class="text-end">@Model.Report.TotalOffPeak.Consumed.ToString("N2")</td>
-                    <td class="text-end">@Model.Report.TotalOffPeak.Export.ToString("N2")</td>
-                    <td class="text-end">@Model.Report.TotalOffPeak.Import.ToString("N2")</td>
+                    <td class="text-end">@Model.Report.TotalOffPeak.Produced.ToString("N0")</td>
+                    <td class="text-end">@Model.Report.TotalOffPeak.Consumed.ToString("N0")</td>
+                    <td class="text-end">@Model.Report.TotalOffPeak.Export.ToString("N0")</td>
+                    <td class="text-end">@Model.Report.TotalOffPeak.Import.ToString("N0")</td>
                 </tr>
                 <tr class="table-primary fw-bold">
                     <td>Grand Total</td>
-                    <td class="text-end">@Model.Report.GrandTotal.Produced.ToString("N2")</td>
-                    <td class="text-end">@Model.Report.GrandTotal.Consumed.ToString("N2")</td>
-                    <td class="text-end">@Model.Report.GrandTotal.Export.ToString("N2")</td>
-                    <td class="text-end">@Model.Report.GrandTotal.Import.ToString("N2")</td>
+                    <td class="text-end">@Model.Report.GrandTotal.Produced.ToString("N0")</td>
+                    <td class="text-end">@Model.Report.GrandTotal.Consumed.ToString("N0")</td>
+                    <td class="text-end">@Model.Report.GrandTotal.Export.ToString("N0")</td>
+                    <td class="text-end">@Model.Report.GrandTotal.Import.ToString("N0")</td>
                 </tr>
             </tbody>
         </table>
@@ -77,19 +77,19 @@
                 <tbody>
                     <tr>
                         <td>Produced</td>
-                        <td class="text-end">@Model.Report.WeekendTotal.Produced.ToString("N2")</td>
+                        <td class="text-end">@Model.Report.WeekendTotal.Produced.ToString("N0")</td>
                     </tr>
                     <tr>
                         <td>Consumed</td>
-                        <td class="text-end">@Model.Report.WeekendTotal.Consumed.ToString("N2")</td>
+                        <td class="text-end">@Model.Report.WeekendTotal.Consumed.ToString("N0")</td>
                     </tr>
                     <tr>
                         <td>Export</td>
-                        <td class="text-end">@Model.Report.WeekendTotal.Export.ToString("N2")</td>
+                        <td class="text-end">@Model.Report.WeekendTotal.Export.ToString("N0")</td>
                     </tr>
                     <tr>
                         <td>Import</td>
-                        <td class="text-end">@Model.Report.WeekendTotal.Import.ToString("N2")</td>
+                        <td class="text-end">@Model.Report.WeekendTotal.Import.ToString("N0")</td>
                     </tr>
                 </tbody>
             </table>
@@ -113,19 +113,19 @@
                     <tbody>
                         <tr>
                             <td>Produced</td>
-                            <td class="text-end">@summary.Produced.ToString("N2")</td>
+                            <td class="text-end">@summary.Produced.ToString("N0")</td>
                         </tr>
                         <tr>
                             <td>Consumed</td>
-                            <td class="text-end">@summary.Consumed.ToString("N2")</td>
+                            <td class="text-end">@summary.Consumed.ToString("N0")</td>
                         </tr>
                         <tr>
                             <td>Export</td>
-                            <td class="text-end">@summary.Export.ToString("N2")</td>
+                            <td class="text-end">@summary.Export.ToString("N0")</td>
                         </tr>
                         <tr>
                             <td>Import</td>
-                            <td class="text-end">@summary.Import.ToString("N2")</td>
+                            <td class="text-end">@summary.Import.ToString("N0")</td>
                         </tr>
                     </tbody>
                 </table>
