@@ -26,6 +26,11 @@ public class MetricSummary
     public decimal Export { get; set; }
     public decimal Import { get; set; }
 
+    /// <summary>
+    /// Net energy drawn from the grid: Import minus Export. Negative values indicate net export.
+    /// </summary>
+    public decimal NetImport => Import - Export;
+
     public void Add(GenerationRecord record)
     {
         Produced += record.Produced;

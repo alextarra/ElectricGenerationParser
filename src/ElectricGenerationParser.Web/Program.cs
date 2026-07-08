@@ -5,6 +5,17 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorPages();
 
+// Server-side session used to cache the last uploaded CSV for the browser session,
+// so a report can be re-run without re-selecting the file. The session cookie is a
+// session cookie (no expiry), so cached data is dropped when the browser closes.
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromHours(2);
+    options.Cookie.IsEssential = true;
+    options.Cookie.HttpOnly = true;
+});
+
 // Register ElectricGenerationParser Core Services
 builder.Services.AddElectricGenerationCore(builder.Configuration);
 
@@ -21,6 +32,8 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseRouting();
+
+app.UseSession();
 
 app.UseAuthorization();
 

@@ -12,8 +12,8 @@ public static class ServiceCollectionExtensions
         // Configuration
         services.Configure<HolidaySettings>(
             configuration.GetSection("Holiday"));
-        services.Configure<PeakHoursSettings>(
-            configuration.GetSection("PeakHours"));
+        // Weekday On-Peak hours are now driven per-request by the selected Time-of-Use plan
+        // (see ReportRequest / TimeOfUsePlan), so PeakHours config is no longer bound here.
 
         // Services
         services.AddSingleton<IHolidayService, HolidayService>();

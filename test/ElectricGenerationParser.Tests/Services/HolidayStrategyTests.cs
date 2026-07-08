@@ -12,11 +12,13 @@ public class HolidayStrategyTests
         public string? GetHolidayName(DateOnly date) => IsHoliday(date) ? "New Year's Day" : null;
     }
 
+    private static readonly PeakPeriod Peak = new() { StartHour = 7, EndHour = 19 };
+
     [Fact]
     public void DetermineRate_ShouldReturnOffPeak_ForHoliday()
     {
         var strategy = new HolidayStrategy(new FakeHolidayService());
-        var result = strategy.DetermineRate(new DateTime(2026, 1, 1));
+        var result = strategy.DetermineRate(new DateTime(2026, 1, 1), Peak);
         Assert.Equal(RateType.OffPeak, result);
     }
 
@@ -24,7 +26,7 @@ public class HolidayStrategyTests
     public void DetermineRate_ShouldReturnNull_ForNonHoliday()
     {
         var strategy = new HolidayStrategy(new FakeHolidayService());
-        var result = strategy.DetermineRate(new DateTime(2026, 1, 2));
+        var result = strategy.DetermineRate(new DateTime(2026, 1, 2), Peak);
         Assert.Null(result);
     }
 }

@@ -4,7 +4,7 @@ namespace ElectricGenerationParser.Core.Services;
 
 public interface IRateCalculator
 {
-    RateType CalculateRate(DateTime timestamp);
+    RateType CalculateRate(DateTime timestamp, PeakPeriod weekdayPeak);
 }
 
 public class RateCalculator : IRateCalculator
@@ -16,11 +16,11 @@ public class RateCalculator : IRateCalculator
         _strategies = strategies ?? throw new ArgumentNullException(nameof(strategies));
     }
 
-    public RateType CalculateRate(DateTime timestamp)
+    public RateType CalculateRate(DateTime timestamp, PeakPeriod weekdayPeak)
     {
         foreach (var strategy in _strategies)
         {
-            var rate = strategy.DetermineRate(timestamp);
+            var rate = strategy.DetermineRate(timestamp, weekdayPeak);
             if (rate.HasValue)
             {
                 return rate.Value;
