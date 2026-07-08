@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(dotnet build src/ElectricGenerationParser.Web/ElectricGenerationParser.Web.csproj -v q --nologo 2>&1)",
+      "PowerShell(dotnet test test/ElectricGenerationParser.Tests/ElectricGenerationParser.Tests.csproj -v q --nologo 2>&1)",
+      "PowerShell(dotnet test test/ElectricGenerationParser.Tests/ElectricGenerationParser.Tests.csproj -v q --nologo --filter \"FullyQualifiedName~TwoDifferentCutoffs\" 2>&1)",
+      "PowerShell(Get-CimInstance Win32_Process -Filter \"name='ElectricGenerationParser.Web.exe'\" | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }; Start-Sleep -Milliseconds 500; dotnet build src/ElectricGenerationParser.Web/ElectricGenerationParser.Web.csproj -v q --nologo 2>&1 | Select-Object -Last 4)",
+      "Bash(find /tmp /c/Users/tarrs/AppData/Local/Temp -maxdepth 3 -iname \"*.csv\" -newermt \"2026-01-01\" 2>/dev/null | head -20; echo \"---\"; ls -t /tmp 2>/dev/null | head)",
+      "Read(//c/Users/tarrs/AppData/Local/Temp/**)",
+      "Bash(ls -t /c/Users/tarrs/Downloads/*.csv 2>/dev/null | head; echo \"---match---\"; ls -la \"/c/Users/tarrs/Downloads/5919893_custom_report \\(4\\).csv\" 2>/dev/null)",
+      "Read(//c/Users/tarrs/Downloads/**)",
+      "PowerShell(dotnet build src/ElectricGenerationParser/ElectricGenerationParser.csproj -v q --nologo 2>&1)",
+      "PowerShell(Get-CimInstance Win32_Process -Filter \"name='ElectricGenerationParser.Web.exe'\" | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }; dotnet build ElectricGenerationParser.sln -v q --nologo 2>&1 | Select-Object -Last 5; dotnet test test/ElectricGenerationParser.Tests/ElectricGenerationParser.Tests.csproj -v q --nologo 2>&1 | Select-Object -Last 4)",
+      "Bash(git checkout *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(rm -f /tmp/commitmsg.txt)",
+      "Bash(git push *)",
+      "Bash(git config *)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\tarrs\\.claude\\projects\\c--Users-tarrs-Coding-ElectricGenerationParser\\memory"
+    ]
+  }
+}
