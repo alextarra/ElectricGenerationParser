@@ -11,10 +11,49 @@
     <div class="row justify-content-center mt-5">
         <div class="col-md-6">
             <form method="post" enctype="multipart/form-data">
-                <div class="form-group mb-3">
-                    <label for="fileUpload" class="form-label">Select CSV File</label>
-                    <input type="file" class="form-control" id="fileUpload" name="Upload" accept=".csv" required>
+                <div class="form-group mb-3 text-start">
+                    <label asp-for="Upload" class="form-label">Select CSV File</label>
+                    <input type="file" class="form-control" asp-for="Upload" accept=".csv" required="@(string.IsNullOrEmpty(Model.LastFileName))">
+                    <div class="form-text">Supports both 1-hour and 15-minute reading intervals.</div>
+                    @if (!string.IsNullOrEmpty(Model.LastFileName))
+                    {
+                        <div class="form-text">Using <strong>@Model.LastFileName</strong> — leave empty to reuse it, or choose a different file.</div>
+                    }
                 </div>
+
+                <div class="row">
+                    <div class="col-md-6 form-group mb-3 text-start">
+                        <label asp-for="FromDate" class="form-label">Date From (inclusive)</label>
+                        <input type="date" class="form-control" asp-for="FromDate">
+                    </div>
+                    <div class="col-md-6 form-group mb-3 text-start">
+                        <label asp-for="ToDate" class="form-label">Date To (inclusive)</label>
+                        <input type="date" class="form-control" asp-for="ToDate">
+                    </div>
+                </div>
+                <div class="form-text text-start mb-3">
+                    Leave both dates empty to summarize the entire file. When set, each day is
+                    split at the Cutoff Hour, so the report runs from that hour on the From date
+                    up to (but not including) that hour on the To date.
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 form-group mb-3 text-start">
+                        <label asp-for="CutoffHour" class="form-label">Cutoff Hour (0-24)</label>
+                        <input type="number" min="0" max="24" class="form-control" asp-for="CutoffHour">
+                        <div class="form-text">0 = start-of-day (includes From date, excludes To); 24 = end-of-day (excludes From date, includes To).</div>
+                    </div>
+                    <div class="col-md-6 form-group mb-3 text-start">
+                        <label asp-for="Plan" class="form-label">Time-Of-Use Plan</label>
+                        <select class="form-select" asp-for="Plan">
+                            <option value="@TimeOfUsePlan.SevenToSeven">7am - 7pm</option>
+                            <option value="@TimeOfUsePlan.EightToEight">8am - 8pm</option>
+                            <option value="@TimeOfUsePlan.NineToNine">9am - 9pm</option>
+                            <option value="@TimeOfUsePlan.TenToTen">10am - 10pm</option>
+                        </select>
+                    </div>
+                </div>
+
                 <button type="submit" class="btn btn-primary">Process Report</button>
             </form>
             <div asp-validation-summary="ModelOnly" class="text-danger mt-2"></div>
@@ -27,7 +66,20 @@
     <hr class="my-5" />
 
     <div class="container">
-        <h2 class="mb-4">Generation Report</h2>
+        <h2 class="mb-2">Generation Report</h2>
+        <p class="text-muted">
+            Time-Of-Use Plan: <strong>@Model.Plan.ToDisplayName()</strong>
+            @if (Model.FromDate.HasValue && Model.ToDate.HasValue)
+            {
+                <text> &middot; Window: <strong>@Model.FromDate.Value.ToString("yyyy-MM-dd") @($"{Model.CutoffHour:D2}:00")</strong>
+                to <strong>@Model.ToDate.Value.ToString("yyyy-MM-dd") @($"{Model.CutoffHour:D2}:00")</strong></text>
+            }
+            else
+            {
+                <text> &middot; <strong>Entire file</strong></text>
+            }
+            <text> &middot; All values in <strong>kWh</strong></text>
+        </p>
 
         <table class="table table-striped table-hover">
             <thead>
@@ -37,29 +89,33 @@
                     <th class="text-end">Consumed</th>
                     <th class="text-end">Export</th>
                     <th class="text-end">Import</th>
+                    <th class="text-end">Net Import</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
                     <td>On-Peak</td>
-                    <td class="text-end">@Model.Report.TotalOnPeak.Produced.ToString("N0")</td>
-                    <td class="text-end">@Model.Report.TotalOnPeak.Consumed.ToString("N0")</td>
-                    <td class="text-end">@Model.Report.TotalOnPeak.Export.ToString("N0")</td>
-                    <td class="text-end">@Model.Report.TotalOnPeak.Import.ToString("N0")</td>
+                    <td class="text-end">@Model.Report.TotalOnPeak.Produced.ToKwh()</td>
+                    <td class="text-end">@Model.Report.TotalOnPeak.Consumed.ToKwh()</td>
+                    <td class="text-end">@Model.Report.TotalOnPeak.Export.ToKwh()</td>
+                    <td class="text-end">@Model.Report.TotalOnPeak.Import.ToKwh()</td>
+                    <td class="text-end">@Model.Report.TotalOnPeak.NetImport.ToKwh()</td>
                 </tr>
                 <tr>
                     <td>Off-Peak</td>
-                    <td class="text-end">@Model.Report.TotalOffPeak.Produced.ToString("N0")</td>
-                    <td class="text-end">@Model.Report.TotalOffPeak.Consumed.ToString("N0")</td>
-                    <td class="text-end">@Model.Report.TotalOffPeak.Export.ToString("N0")</td>
-                    <td class="text-end">@Model.Report.TotalOffPeak.Import.ToString("N0")</td>
+                    <td class="text-end">@Model.Report.TotalOffPeak.Produced.ToKwh()</td>
+                    <td class="text-end">@Model.Report.TotalOffPeak.Consumed.ToKwh()</td>
+                    <td class="text-end">@Model.Report.TotalOffPeak.Export.ToKwh()</td>
+                    <td class="text-end">@Model.Report.TotalOffPeak.Import.ToKwh()</td>
+                    <td class="text-end">@Model.Report.TotalOffPeak.NetImport.ToKwh()</td>
                 </tr>
                 <tr class="table-primary fw-bold">
                     <td>Grand Total</td>
-                    <td class="text-end">@Model.Report.GrandTotal.Produced.ToString("N0")</td>
-                    <td class="text-end">@Model.Report.GrandTotal.Consumed.ToString("N0")</td>
-                    <td class="text-end">@Model.Report.GrandTotal.Export.ToString("N0")</td>
-                    <td class="text-end">@Model.Report.GrandTotal.Import.ToString("N0")</td>
+                    <td class="text-end">@Model.Report.GrandTotal.Produced.ToKwh()</td>
+                    <td class="text-end">@Model.Report.GrandTotal.Consumed.ToKwh()</td>
+                    <td class="text-end">@Model.Report.GrandTotal.Export.ToKwh()</td>
+                    <td class="text-end">@Model.Report.GrandTotal.Import.ToKwh()</td>
+                    <td class="text-end">@Model.Report.GrandTotal.NetImport.ToKwh()</td>
                 </tr>
             </tbody>
         </table>
@@ -77,19 +133,23 @@
                 <tbody>
                     <tr>
                         <td>Produced</td>
-                        <td class="text-end">@Model.Report.WeekendTotal.Produced.ToString("N0")</td>
+                        <td class="text-end">@Model.Report.WeekendTotal.Produced.ToKwh()</td>
                     </tr>
                     <tr>
                         <td>Consumed</td>
-                        <td class="text-end">@Model.Report.WeekendTotal.Consumed.ToString("N0")</td>
+                        <td class="text-end">@Model.Report.WeekendTotal.Consumed.ToKwh()</td>
                     </tr>
                     <tr>
                         <td>Export</td>
-                        <td class="text-end">@Model.Report.WeekendTotal.Export.ToString("N0")</td>
+                        <td class="text-end">@Model.Report.WeekendTotal.Export.ToKwh()</td>
                     </tr>
                     <tr>
                         <td>Import</td>
-                        <td class="text-end">@Model.Report.WeekendTotal.Import.ToString("N0")</td>
+                        <td class="text-end">@Model.Report.WeekendTotal.Import.ToKwh()</td>
+                    </tr>
+                    <tr>
+                        <td>Net Import</td>
+                        <td class="text-end">@Model.Report.WeekendTotal.NetImport.ToKwh()</td>
                     </tr>
                 </tbody>
             </table>
@@ -113,23 +173,97 @@
                     <tbody>
                         <tr>
                             <td>Produced</td>
-                            <td class="text-end">@summary.Produced.ToString("N0")</td>
+                            <td class="text-end">@summary.Produced.ToKwh()</td>
                         </tr>
                         <tr>
                             <td>Consumed</td>
-                            <td class="text-end">@summary.Consumed.ToString("N0")</td>
+                            <td class="text-end">@summary.Consumed.ToKwh()</td>
                         </tr>
                         <tr>
                             <td>Export</td>
-                            <td class="text-end">@summary.Export.ToString("N0")</td>
+                            <td class="text-end">@summary.Export.ToKwh()</td>
                         </tr>
                         <tr>
                             <td>Import</td>
-                            <td class="text-end">@summary.Import.ToString("N0")</td>
+                            <td class="text-end">@summary.Import.ToKwh()</td>
+                        </tr>
+                        <tr>
+                            <td>Net Import</td>
+                            <td class="text-end">@summary.NetImport.ToKwh()</td>
                         </tr>
                     </tbody>
                 </table>
             }
         }
     </div>
+}
+
+@section Scripts {
+    <script>
+        // When a CSV is selected, prefill Date From / Date To with the earliest and latest
+        // dates in the file — but only if the user hasn't already filled them in.
+        (function () {
+            var fileInput = document.getElementById('Upload');
+            var fromInput = document.getElementById('FromDate');
+            var toInput = document.getElementById('ToDate');
+            if (!fileInput || !fromInput || !toInput) return;
+
+            fileInput.addEventListener('change', function () {
+                // Respect any dates the user already entered.
+                if (fromInput.value || toInput.value) return;
+
+                var file = fileInput.files && fileInput.files[0];
+                if (!file) return;
+
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    var range = extractDateRange(e.target.result);
+                    if (!range) return;
+                    // Re-check in case the user typed a value while the file was being read.
+                    if (!fromInput.value) fromInput.value = range.min;
+                    if (!toInput.value) toInput.value = range.max;
+                };
+                reader.readAsText(file);
+            });
+
+            // Returns { min, max } as 'yyyy-MM-dd' strings, or null if no dates were found.
+            function extractDateRange(text) {
+                var lines = text.split(/\r?\n/);
+                if (lines.length < 2) return null;
+
+                var header = lines[0].split(',');
+                var dateIdx = -1;
+                for (var i = 0; i < header.length; i++) {
+                    if (unquote(header[i]) === 'Date/Time') { dateIdx = i; break; }
+                }
+                if (dateIdx === -1) return null;
+
+                var min = null, max = null;
+                for (var r = 1; r < lines.length; r++) {
+                    if (!lines[r].trim()) continue;
+                    var cols = lines[r].split(',');
+                    if (cols.length <= dateIdx) continue;
+
+                    var iso = toIsoDate(unquote(cols[dateIdx]));
+                    if (!iso) continue;
+                    // 'yyyy-MM-dd' compares chronologically as a string.
+                    if (min === null || iso < min) min = iso;
+                    if (max === null || iso > max) max = iso;
+                }
+                return min === null ? null : { min: min, max: max };
+            }
+
+            function unquote(s) {
+                return s.trim().replace(/^"|"$/g, '');
+            }
+
+            // Parses the date portion of "MM/dd/yyyy HH:mm" into 'yyyy-MM-dd'.
+            function toIsoDate(raw) {
+                var datePart = raw.split(' ')[0];
+                var m = datePart.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+                if (!m) return null;
+                return m[3] + '-' + ('0' + m[1]).slice(-2) + '-' + ('0' + m[2]).slice(-2);
+            }
+        })();
+    </script>
 }

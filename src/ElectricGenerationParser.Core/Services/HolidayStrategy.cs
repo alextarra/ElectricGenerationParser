@@ -11,7 +11,7 @@ public class HolidayStrategy : IRateStrategy
         _holidayService = holidayService ?? throw new ArgumentNullException(nameof(holidayService));
     }
 
-    public RateType? DetermineRate(DateTime timestamp)
+    public RateType? DetermineRate(DateTime timestamp, PeakPeriod weekdayPeak)
     {
         if (_holidayService.IsHoliday(DateOnly.FromDateTime(timestamp)))
         {
