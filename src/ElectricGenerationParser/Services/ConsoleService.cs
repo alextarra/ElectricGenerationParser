@@ -4,7 +4,6 @@ namespace ElectricGenerationParser.Services;
 
 public class ConsoleService : IConsoleService
 {
-    private const string Format = "N0";
     private const int MetricWidth = 30;
     private const int ValueWidth = 15;
 
@@ -15,14 +14,15 @@ public class ConsoleService : IConsoleService
         Console.WriteLine(new string('-', MetricWidth + (ValueWidth * 3) + 3));
 
         // Rows
-        PrintRow("Produced (Wh)", model.TotalOnPeak.Produced, model.TotalOffPeak.Produced, model.GrandTotal.Produced);
-        PrintRow("Consumed (Wh)", model.TotalOnPeak.Consumed, model.TotalOffPeak.Consumed, model.GrandTotal.Consumed);
-        PrintRow("Exported to Grid (Wh)", model.TotalOnPeak.Export, model.TotalOffPeak.Export, model.GrandTotal.Export);
-        PrintRow("Imported from Grid (Wh)", model.TotalOnPeak.Import, model.TotalOffPeak.Import, model.GrandTotal.Import);
+        PrintRow("Produced (kWh)", model.TotalOnPeak.Produced, model.TotalOffPeak.Produced, model.GrandTotal.Produced);
+        PrintRow("Consumed (kWh)", model.TotalOnPeak.Consumed, model.TotalOffPeak.Consumed, model.GrandTotal.Consumed);
+        PrintRow("Exported to Grid (kWh)", model.TotalOnPeak.Export, model.TotalOffPeak.Export, model.GrandTotal.Export);
+        PrintRow("Imported from Grid (kWh)", model.TotalOnPeak.Import, model.TotalOffPeak.Import, model.GrandTotal.Import);
+        PrintRow("Net Import (kWh)", model.TotalOnPeak.NetImport, model.TotalOffPeak.NetImport, model.GrandTotal.NetImport);
 
         // Weekend Totals
         Console.WriteLine();
-        Console.WriteLine("Weekend Totals");
+        Console.WriteLine("Weekend Totals (kWh)");
         Console.WriteLine(new string('-', 20)); // Underline
         PrintSummary(model.WeekendTotal);
 
@@ -30,7 +30,7 @@ public class ConsoleService : IConsoleService
         if (model.HolidaySummaries.Any())
         {
             Console.WriteLine();
-            Console.WriteLine("Holiday Breakdowns");
+            Console.WriteLine("Holiday Breakdowns (kWh)");
             Console.WriteLine(new string('-', 20)); // Underline
             foreach (var kvp in model.HolidaySummaries)
             {
@@ -45,10 +45,11 @@ public class ConsoleService : IConsoleService
     
     private void PrintSummary(MetricSummary summary, string indent = "")
     {
-        Console.WriteLine($"{indent}{PadText("Produced:", 20)} {summary.Produced:N0} Wh");
-        Console.WriteLine($"{indent}{PadText("Consumed:", 20)} {summary.Consumed:N0} Wh");
-        Console.WriteLine($"{indent}{PadText("Export:", 20)} {summary.Export:N0} Wh");
-        Console.WriteLine($"{indent}{PadText("Import:", 20)} {summary.Import:N0} Wh");
+        Console.WriteLine($"{indent}{PadText("Produced:", 20)} {summary.Produced.ToKwh()}");
+        Console.WriteLine($"{indent}{PadText("Consumed:", 20)} {summary.Consumed.ToKwh()}");
+        Console.WriteLine($"{indent}{PadText("Export:", 20)} {summary.Export.ToKwh()}");
+        Console.WriteLine($"{indent}{PadText("Import:", 20)} {summary.Import.ToKwh()}");
+        Console.WriteLine($"{indent}{PadText("Net Import:", 20)} {summary.NetImport.ToKwh()}");
     }
 
     private void PrintRow(string metric, decimal onPeak, decimal offPeak, decimal total)
@@ -68,7 +69,7 @@ public class ConsoleService : IConsoleService
     
     private string PadNumber(decimal value, int width)
     {
-        var formatted = value.ToString(Format);
+        var formatted = value.ToKwh();
         // If the value is too long, we can't do much without breaking alignment.
         // We will return it as is, which will push the columns to the right but preserve the data.
         return formatted.Length > width ? formatted : formatted.PadLeft(width);

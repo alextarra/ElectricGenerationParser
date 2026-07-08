@@ -47,15 +47,15 @@ public class ConsoleServiceTests : IDisposable
         Assert.Contains("Total", output);
 
         // Data Rows
-        Assert.Contains("Produced (Wh)", output);
-        Assert.Contains("Consumed (Wh)", output);
-        Assert.Contains("Exported to Grid (Wh)", output);
-        Assert.Contains("Imported from Grid (Wh)", output);
-        
-        // Values (formatted) - simplistic check ensuring values exist
-        Assert.Contains("100", output);
-        Assert.Contains("60", output);
-        Assert.Contains("40", output);
+        Assert.Contains("Produced (kWh)", output);
+        Assert.Contains("Consumed (kWh)", output);
+        Assert.Contains("Exported to Grid (kWh)", output);
+        Assert.Contains("Imported from Grid (kWh)", output);
+
+        // Values shown in kWh (raw Wh / 1000, up to 3 decimals, not rounded)
+        Assert.Contains("0.1", output);   // GrandTotal Produced 100 Wh
+        Assert.Contains("0.06", output);  // On-Peak Produced 60 Wh
+        Assert.Contains("0.04", output);  // Off-Peak Produced 40 Wh
     }
 
     [Fact]
@@ -81,6 +81,7 @@ public class ConsoleServiceTests : IDisposable
         var output = _stringWriter.ToString();
         Assert.Contains("Christmas (2026-12-25):", output);
         Assert.Contains("Produced:", output);
-        Assert.Contains("500 Wh", output);
+        Assert.Contains("0.5", output);
+        Assert.Contains("Holiday Breakdowns (kWh)", output);
     }
 }

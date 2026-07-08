@@ -7,7 +7,7 @@ namespace ElectricGenerationParser.Core.Services;
 
 public interface IReportGenerator
 {
-    ReportModel GenerateReport(List<GenerationRecord> records);
+    ReportModel GenerateReport(List<GenerationRecord> records, ReportRequest request);
 }
 
 public class ReportGenerator : IReportGenerator
@@ -21,9 +21,24 @@ public class ReportGenerator : IReportGenerator
         _holidayService = holidayService ?? throw new ArgumentNullException(nameof(holidayService));
     }
 
-    public ReportModel GenerateReport(List<GenerationRecord> records)
+    public ReportModel GenerateReport(List<GenerationRecord> records, ReportRequest request)
     {
         ArgumentNullException.ThrowIfNull(records);
+        ArgumentNullException.ThrowIfNull(request);
+
+        if (request.CutoffHour is < 0 or > 24)
+        {
+            throw new ElectricGenerationParser.Core.Exceptions.ValidationException(
+                "Cutoff Hour must be between 0 and 24.");
+        }
+        if (request.HasDateWindow && request.FromDate!.Value > request.ToDate!.Value)
+        {
+            throw new ElectricGenerationParser.Core.Exceptions.ValidationException(
+                "Date From must be on or before Date To.");
+        }
+
+        var weekdayPeak = request.Plan.ToPeakPeriod();
+        var windowedRecords = ApplyDateWindow(records, request);
 
         var report = new ReportModel();
         // Initialize summaries for known RateTypes to avoid nulls
@@ -32,7 +47,7 @@ public class ReportGenerator : IReportGenerator
             report.Summaries[rate] = new MetricSummary();
         }
 
-        foreach (var record in records)
+        foreach (var record in windowedRecords)
         {
             // Populate calculated fields locally to avoid side effects on input list
             decimal export = 0;
@@ -52,7 +67,7 @@ public class ReportGenerator : IReportGenerator
             }
 
             // Determine Rate
-            var rateType = _rateCalculator.CalculateRate(record.Timestamp);
+            var rateType = _rateCalculator.CalculateRate(record.Timestamp, weekdayPeak);
 
             // Add to bucket
             if (!report.Summaries.ContainsKey(rateType))
@@ -86,6 +101,30 @@ public class ReportGenerator : IReportGenerator
         ValidateChecksums(report);
 
         return report;
+    }
+
+    /// <summary>
+    /// Restricts records to the "mid-day to mid-day" window: from <see cref="ReportRequest.FromDate"/>
+    /// at the cutoff hour up to (but not including) <see cref="ReportRequest.ToDate"/> at the cutoff hour.
+    /// This includes the second half of the From day and the first half of the To day.
+    /// When no date window is set, all records pass through unchanged.
+    /// </summary>
+    internal static IEnumerable<GenerationRecord> ApplyDateWindow(
+        IEnumerable<GenerationRecord> records, ReportRequest request)
+    {
+        if (!request.HasDateWindow)
+        {
+            return records;
+        }
+
+        // CutoffHour may be 24 (midnight at the END of the day), so build the split point by
+        // adding hours to midnight rather than constructing a TimeOnly, which caps at 23:59.
+        // Cutoff 24 makes the window [From+1 00:00, To+1 00:00): the From date is excluded and
+        // the To date is fully included — the mirror of cutoff 0.
+        var windowStart = request.FromDate!.Value.ToDateTime(TimeOnly.MinValue).AddHours(request.CutoffHour);
+        var windowEnd = request.ToDate!.Value.ToDateTime(TimeOnly.MinValue).AddHours(request.CutoffHour);
+
+        return records.Where(r => r.Timestamp >= windowStart && r.Timestamp < windowEnd);
     }
 
     internal void ValidateChecksums(ReportModel report)

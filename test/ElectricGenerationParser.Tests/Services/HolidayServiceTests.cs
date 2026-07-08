@@ -82,6 +82,30 @@ public class HolidayServiceTests
     }
 
     [Fact]
+    public void GetHolidays_ShouldObserveSundayHolidayOnFollowingMonday()
+    {
+        // Arrange: July 4 2027 is a Sunday, so Independence Day is observed on Monday July 5.
+        var settings = new HolidaySettings
+        {
+            FixedHolidays = new List<FixedHoliday>
+            {
+                new() { Name = "Independence Day", Month = 7, Day = 4 }
+            },
+            ObserveWeekendHolidays = true
+        };
+        var service = new HolidayService(Options.Create(settings));
+
+        // Act
+        var result = service.GetHolidays(2027).ToList();
+
+        // Assert: the original Sunday stays a holiday AND the following Monday is observed.
+        Assert.Contains(new DateOnly(2027, 7, 4), result); // Sun (actual)
+        Assert.Contains(new DateOnly(2027, 7, 5), result); // Mon (observed)
+        Assert.Equal("Independence Day", service.GetHolidayName(new DateOnly(2027, 7, 4)));
+        Assert.Equal("Independence Day (Observed)", service.GetHolidayName(new DateOnly(2027, 7, 5)));
+    }
+
+    [Fact]
     public void GetHolidays_IntegrationCheck_2026()
     {
         // 2026:

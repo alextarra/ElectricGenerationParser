@@ -8,7 +8,7 @@ namespace ElectricGenerationParser;
 
 public interface IApplication
 {
-    void Run(string inputFilePath);
+    void Run(string inputFilePath, ReportRequest request);
 }
 
 public class Application : IApplication
@@ -30,8 +30,9 @@ public class Application : IApplication
         _consoleService = consoleService;
     }
 
-    public void Run(string inputFilePath)
+    public void Run(string inputFilePath, ReportRequest request)
     {
+        ArgumentNullException.ThrowIfNull(request);
         _logger.LogInformation("Starting application with input file: {FilePath}", inputFilePath);
 
         if (!File.Exists(inputFilePath))
@@ -46,9 +47,12 @@ public class Application : IApplication
         _logger.LogInformation("Successfully parsed {Count} records.", records.Count);
         
         // Story 3.1 & 3.2: Generate and Render Report
-        _logger.LogInformation("Generating Report...");
-        var report = _reportGenerator.GenerateReport(records);
-        
+        _logger.LogInformation(
+            "Generating Report (Plan: {Plan}, Cutoff: {Cutoff}, Window: {From} to {To})...",
+            request.Plan, request.CutoffHour,
+            request.FromDate?.ToString() ?? "(all)", request.ToDate?.ToString() ?? "(all)");
+        var report = _reportGenerator.GenerateReport(records, request);
+
         _consoleService.RenderReport(report);
     }
 }
